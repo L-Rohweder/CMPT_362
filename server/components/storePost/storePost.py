@@ -1,2 +1,2 @@
-def storePost(request, connection, dbConnection):
+def storePost(request, dbConnection):
     print("save:", request)

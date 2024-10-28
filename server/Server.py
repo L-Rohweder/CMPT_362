@@ -2,6 +2,7 @@ import sqlite3
 from utils.DaemonThread import DaemonThread
 from components.sendPosts.sendPosts import sendPosts
 from components.storePost.storePost import storePost
+import utils.Response as Response
 import configparser
 import socket
 import os
@@ -43,12 +44,14 @@ class Server:
         except json.JSONDecodeError as e:
             print("json processing failed", e)
     
-    def passToComponent(self, endpoint, request, connection):
+    def passToComponent(self, endpoint, jsonfile, connection):
         match endpoint:
             case 'get':
-                sendPosts(request, connection, self.db_connection)
+                sendPosts(jsonfile, connection, self.db_connection)
             case 'post':
-                storePost(request, connection, self.db_connection)
+                connection.sendall(Response.OK().encode('utf-8'))
+                connection.close()
+                storePost(jsonfile, self.db_connection)
 
 
     def stop(self):
