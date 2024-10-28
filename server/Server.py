@@ -55,6 +55,7 @@ class Server:
 
 
     def stop(self):
+        self.db_connection.close()
         self.server_socket.shutdown(socket.SHUT_RDWR)
         self.server_socket.close()
         self.running = False
