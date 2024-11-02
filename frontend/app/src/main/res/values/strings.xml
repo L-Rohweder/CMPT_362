@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Beacon</string>
+    <string name="title_activity_tabbed">TabbedActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="content">Content</string>
+    <string name="username">Username</string>
+    <string name="content_of_post">Content of post.</string>
+    <string name="publish">Publish</string>
+    <string name="create">Create</string>
+    <string name="settings">Settings</string>
 </resources>
