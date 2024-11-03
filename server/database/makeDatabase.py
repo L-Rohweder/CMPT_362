@@ -1,6 +1,11 @@
 import sqlite3 as sql
-
-connection = sql.connect("posts.db")
+import configparser
+import os
+config = configparser.ConfigParser()
+config_path = os.path.join(os.path.dirname(__file__), '../config.ini')
+config.read(config_path)
+db_path = os.path.join(os.path.dirname(__file__),"../database", config.get("Database", "db_name"))
+connection = sql.connect(db_path)
 cursor = connection.cursor()
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS posts (

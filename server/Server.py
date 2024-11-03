@@ -1,6 +1,6 @@
 import sqlite3
 from utils.DaemonThread import DaemonThread
-from components.sendPosts.sendPosts import sendPosts
+from components.sendPosts.sendPosts import sendPosts, sendAllPosts
 from components.storePost.storePost import storePost
 import utils.Response as Response
 import configparser
@@ -11,8 +11,9 @@ import json
 class Server:
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
-        self.db_path = os.path.join("database", self.config.get("Database", "db_name"))
+        config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
+        self.config.read(config_path)
+        self.db_path = os.path.join(os.path.dirname(__file__),"database", self.config.get("Database", "db_name"))
         self.db_connection = sqlite3.connect(self.db_path, check_same_thread=False)
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -49,9 +50,11 @@ class Server:
             case 'get':
                 sendPosts(jsonfile, connection, self.db_connection)
             case 'post':
-                connection.sendall(Response.OK().encode('utf-8'))
+                connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
                 connection.close()
                 storePost(jsonfile, self.db_connection)
+            case 'getAll':
+                sendAllPosts(connection, self.db_connection)
 
 
     def stop(self):
