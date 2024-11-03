@@ -16,6 +16,7 @@ import com.example.beacon.R
 import com.example.beacon.adapters.PostsAdapter
 import com.example.beacon.databinding.FragmentHomeBinding
 import com.example.beacon.models.BeaconPost
+import com.example.beacon.utils.Constants.BACKEND_IP
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.serialization.json.Json
 
@@ -54,7 +55,7 @@ class HomeFragment : Fragment() {
 
     private fun getPostsFromServer() {
         val requestQueue = Volley.newRequestQueue(requireActivity())
-        val url = "10.0.0.193:3333/get"
+        val url = "$BACKEND_IP/get"
         val request = StringRequest(Request.Method.GET, url,
         { response ->
             val posts = Json.decodeFromString(BeaconPost.serializer(), response)

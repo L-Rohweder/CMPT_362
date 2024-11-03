@@ -1,6 +1,5 @@
 package com.example.beacon.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,13 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
+import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.view_models.UserViewModel
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 
@@ -64,12 +62,12 @@ class PostCreateFragment : Fragment() {
 
     private fun postToServer(post: BeaconPost) {
         val requestQueue = Volley.newRequestQueue(requireActivity())
-        val url = "http://10.0.0.193:3333/post"
+        val url = "$BACKEND_IP/post"
         val body = JSONObject(Json.encodeToString(BeaconPost.serializer(), post))
         val request = JsonObjectRequest(
             Request.Method.POST, url, body,
             { response ->
-//                binding.root.findViewById<TextView>(R.id.jsonTextView).text = response
+                binding.root.findViewById<TextView>(R.id.jsonTextView).text = response.toString()
             },
             { error ->
                 Toast.makeText(requireActivity(), "Failed to post to server", Toast.LENGTH_SHORT).show()
