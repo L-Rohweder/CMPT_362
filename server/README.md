@@ -14,9 +14,9 @@ Interaction Sending:
         where server_port is defined in config.ini
         post with body -> 
             {
-            "name": "name here"
-            "content": "This is the post content"
-            "latitude": 30.3
+            "name": "name here",
+            "content": "This is the post content",
+            "latitude": 30.3,
             "longitude": 30.3
             }
 
@@ -29,16 +29,17 @@ Interaction Receiving:
         where server_port is defined in config.ini
         post with body -> 
             {
-            "latitude": 30.3
+            "latitude": 30.3,
             "longitude": 30.3
             }
         
         you will receive a body of ->
             [
                 {
-                "name": "name here"
-                "content": "This is the post content"
-                "latitude": 30.3
-                "longitude": 30.3
+                "name": "name here",
+                "content": "This is the post content",
+                "latitude": 30.3,
+                "longitude": 30.3,
+                "datetime": "yyyy-mm-dd hh-mm-ss"
                 },
             ]

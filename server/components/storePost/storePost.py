@@ -13,4 +13,3 @@ def storePost(jsonFile, dbConnection):
           """.format(name, content, latitude, longitude))
 
     dbModule.savePost(name, content, float(latitude), float(longitude), dbConnection)
-    dbModule.printAllPosts(dbConnection)
