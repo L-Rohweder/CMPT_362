@@ -1,6 +1,8 @@
 package com.example.beacon.fragments
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,12 +12,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.beacon.R
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.view_models.UserViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.json.JSONObject
 
 class PostCreateFragment : Fragment() {
 
@@ -49,12 +56,27 @@ class PostCreateFragment : Fragment() {
         userViewModel.location.observe(requireActivity()) {
             if (userViewModel.requestedLocation.value == true) {
                 val post = BeaconPost(username.toString(), content.toString(), it.latitude, it.longitude)
-                binding.root.findViewById<TextView>(R.id.jsonTextView).text = Json.encodeToString(post)
+                postToServer(post)
                 userViewModel.requestedLocation.value = false
             }
         }
     }
 
+    private fun postToServer(post: BeaconPost) {
+        val requestQueue = Volley.newRequestQueue(requireActivity())
+        val url = "http://10.0.0.193:3333/post"
+        val body = JSONObject(Json.encodeToString(BeaconPost.serializer(), post))
+        val request = JsonObjectRequest(
+            Request.Method.POST, url, body,
+            { response ->
+//                binding.root.findViewById<TextView>(R.id.jsonTextView).text = response
+            },
+            { error ->
+                Toast.makeText(requireActivity(), "Failed to post to server", Toast.LENGTH_SHORT).show()
+                Log.d("Error", error.toString())
+            })
+        requestQueue.add(request)
+    }
 
 
     override fun onDestroyView() {

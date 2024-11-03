@@ -1,6 +1,7 @@
 package com.example.beacon.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +9,15 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.beacon.R
 import com.example.beacon.adapters.PostsAdapter
 import com.example.beacon.databinding.FragmentHomeBinding
 import com.example.beacon.models.BeaconPost
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.serialization.json.Json
 
 class HomeFragment : Fragment() {
 
@@ -48,7 +53,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun getPostsFromServer() {
-        Toast.makeText(requireActivity(), "Getting posts from server", Toast.LENGTH_SHORT).show()
+        val requestQueue = Volley.newRequestQueue(requireActivity())
+        val url = "10.0.0.193:3333/get"
+        val request = StringRequest(Request.Method.GET, url,
+        { response ->
+            val posts = Json.decodeFromString(BeaconPost.serializer(), response)
+            Log.d("debug", posts.toString())
+        },
+        { error ->
+            Toast.makeText(context, "Failed to get from server", Toast.LENGTH_SHORT).show()
+            Log.d("Error", error.toString())
+        })
+        requestQueue.add(request)
     }
 
     override fun onDestroyView() {

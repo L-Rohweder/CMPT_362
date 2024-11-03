@@ -28,7 +28,7 @@ class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
         val post = posts[position]
 
         val usernameTextView = listWidgetView.findViewById<TextView>(R.id.username)
-        usernameTextView.text = post.username
+        usernameTextView.text = post.name
 
         val contentTextView = listWidgetView.findViewById<TextView>(R.id.content)
         contentTextView.text = post.content
