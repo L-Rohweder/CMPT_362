@@ -47,13 +47,21 @@ class PostCreateFragment : Fragment() {
     }
 
     private fun publishPost() {
-        val username = _binding?.root?.findViewById<EditText>(R.id.usernameEditText)?.text
-        val content = _binding?.root?.findViewById<EditText>(R.id.contentEditText)?.text
+        val username = binding.usernameEditText.text.toString()
+        val content = binding.contentEditText.text.toString()
+
+        // Validate inputs
+        if (username.isBlank() || content.isBlank()) {
+                Toast.makeText(requireContext(), "Please enter both username and content.", Toast.LENGTH_SHORT).show()
+                return
+        }
+
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         userViewModel.requestedLocation.value = true
-        userViewModel.location.observe(requireActivity()) {
+
+        userViewModel.location.observe(viewLifecycleOwner) { location ->
             if (userViewModel.requestedLocation.value == true) {
-                val post = BeaconPost(username.toString(), content.toString(), it.latitude, it.longitude)
+                val post = BeaconPost(username, content, location.latitude, location.longitude)
                 postToServer(post)
                 userViewModel.requestedLocation.value = false
             }
@@ -64,14 +72,20 @@ class PostCreateFragment : Fragment() {
         val requestQueue = Volley.newRequestQueue(requireActivity())
         val url = "$BACKEND_IP/post"
         val body = JSONObject(Json.encodeToString(BeaconPost.serializer(), post))
+
         val request = JsonObjectRequest(
             Request.Method.POST, url, body,
-            { response ->
-                binding.root.findViewById<TextView>(R.id.jsonTextView).text = response.toString()
+            { _ ->
+                // Success
+                Toast.makeText(requireContext(), "Post published successfully!", Toast.LENGTH_SHORT).show()
+                // Clear input fields
+                binding.usernameEditText.text.clear()
+                binding.contentEditText.text.clear()
             },
             { error ->
-                Toast.makeText(requireActivity(), "Failed to post to server", Toast.LENGTH_SHORT).show()
-                Log.d("Error", error.toString())
+                // Failure
+                Toast.makeText(requireContext(), "Failed to publish post.", Toast.LENGTH_SHORT).show()
+                Log.e("Error", error.toString())
             })
         requestQueue.add(request)
     }

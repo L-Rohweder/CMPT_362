@@ -50,9 +50,9 @@ class Server:
             case 'get':
                 sendPosts(jsonfile, connection, self.db_connection)
             case 'post':
+                storePost(jsonfile, self.db_connection)
                 connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
                 connection.close()
-                storePost(jsonfile, self.db_connection)
             case 'getAll':
                 sendAllPosts(connection, self.db_connection)
 

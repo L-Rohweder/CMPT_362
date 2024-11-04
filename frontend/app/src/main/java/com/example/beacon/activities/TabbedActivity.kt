@@ -76,7 +76,7 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        userViewModel.location.value = LatLng(location.latitude, location.longitude)
+        userViewModel.location.postValue(LatLng(location.latitude, location.longitude))
     }
 
     override fun onRequestPermissionsResult(
