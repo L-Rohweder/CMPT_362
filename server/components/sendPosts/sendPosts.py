@@ -12,7 +12,7 @@ def sendPosts(jsonFile, connection, dbConnection):
     latitude = jsonFile["latitude"]
     longitude = jsonFile["longitude"]
     lowLat, highLat = getLatRange(latitude, posts_range_km)
-    lowLong, highLong = getLongRange(longitude, posts_range_km)
+    lowLong, highLong = getLongRange(longitude,latitude, posts_range_km)
     postlist = dbModule.getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection)
     sendPostList(connection, postlist)
 
