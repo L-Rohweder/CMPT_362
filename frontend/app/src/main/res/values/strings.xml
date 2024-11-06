@@ -15,4 +15,6 @@
     <string name="range">Range</string>
     <string name="inf">∞</string>
     <string name="_0m">0m</string>
+    <string name="_0">0%</string>
+    <string name="_100">100%</string>
 </resources>
