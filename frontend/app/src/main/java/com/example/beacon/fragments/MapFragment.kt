@@ -1,11 +1,11 @@
 package com.example.beacon.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.beacon.R
@@ -20,21 +20,20 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.material.slider.Slider
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.cos
+import kotlin.math.ln
 import kotlin.math.pow
-import kotlin.math.sin
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentMapBinding? = null
 
-    private lateinit var _map: GoogleMap
+    private var _map: GoogleMap? = null
     private lateinit var _location: LatLng
     private lateinit var _slider: Slider
+    private lateinit var _rangeTextView: TextView
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -52,45 +51,79 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        configureSlider(root)
+        _slider = root.findViewById(R.id.rangeSlider)
+        _rangeTextView = root.findViewById(R.id.rangeTextView)
+        configureSlider()
 
         return root
     }
 
-    fun configureSlider(root: View) {
-        _slider = root.findViewById(R.id.rangeSlider)
-        val rangeTextView = root.findViewById<TextView>(R.id.rangeTextView)
+    private fun configureSlider() {
+        val sharedPrefs = requireActivity().getSharedPreferences(
+            Constants.SP_KEY, Context.MODE_PRIVATE)
+        val initialRange = sharedPrefs.getFloat(Constants.SP_RANGE_KM, 1.0f)
+        _slider.value = rangeToSliderValue(initialRange)
+        updateUIRange(_slider.value)
+
         _slider.addOnChangeListener { _, value, _ ->
-            val range = Constants.RADIUS_MAX.pow(value.toDouble()/100)
-            val unit = "km"
-            val formatted = "${BigDecimal(range).setScale(3, RoundingMode.UP)} $unit"
-            rangeTextView.text = formatted
+            updateUIRange(value)
         }
 
         _slider.addOnSliderTouchListener(object: Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: Slider) {
-                // do nothing
-            }
+            override fun onStartTrackingTouch(slider: Slider) {}
 
             override fun onStopTrackingTouch(slider: Slider) {
-                _map.clear()
-                val range = Constants.RADIUS_MAX.pow(slider.value.toDouble()/100)
-                val circle = CircleOptions()
-                    .fillColor(requireActivity().getColor(R.color.range_fill))
-                    .strokeColor(requireActivity().getColor(R.color.range_stroke))
-                    .center(_location)
-                    .radius(range*1000) // in meters
-                _map.addCircle(circle)
+                val range = sliderValueToRange(slider.value).toFloat()
+                with (sharedPrefs.edit()) {
+                    putFloat(Constants.SP_RANGE_KM, range)
+                    apply()
+                }
 
-                val radiusLat = Conversion.kmToLat(range)
-                val radiusLong = Conversion.kmToLong(_location.latitude, range)
-                val neBound = LatLng(_location.latitude-radiusLat, _location.longitude-radiusLong)
-                val swBound = LatLng(_location.latitude+radiusLat, _location.longitude+radiusLong)
-                _map.moveCamera(CameraUpdateFactory.newLatLngBounds(
-                    LatLngBounds(neBound, swBound), 10
-                ))
+                val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+                userViewModel.range.value = range
             }
         })
+    }
+
+    private fun rangeToSliderValue(range: Float): Float {
+        return (100* ln(range) / ln(Constants.RADIUS_MAX).toFloat())
+    }
+
+    private fun sliderValueToRange(sliderValue: Float): Double {
+        return Constants.RADIUS_MAX.pow(sliderValue.toDouble()/100)
+    }
+
+    private fun updateUIRange(sliderValue: Float) {
+        val range = sliderValueToRange(sliderValue)
+        val unit = "km"
+        val formatted = "${BigDecimal(range).setScale(3, RoundingMode.UP)} $unit"
+        _rangeTextView.text = formatted
+        drawRangeCircle(range)
+    }
+
+    private fun drawRangeCircle(range: Double) {
+        if (_map != null) {
+            val map = _map!!
+            map.clear()
+            val circle = CircleOptions()
+                .fillColor(requireActivity().getColor(R.color.range_fill))
+                .strokeColor(requireActivity().getColor(R.color.range_stroke))
+                .center(_location)
+                .radius(range * 1000) // in meters
+            map.addCircle(circle)
+
+            val radiusLat = Conversion.kmToLat(range)
+            val radiusLong = Conversion.kmToLong(_location.latitude, range)
+            val neBound =
+                LatLng(_location.latitude - radiusLat, _location.longitude - radiusLong)
+            val swBound =
+                LatLng(_location.latitude + radiusLat, _location.longitude + radiusLong)
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngBounds(
+                    LatLngBounds(neBound, swBound), 10
+                )
+            )
+        }
     }
 
     override fun onDestroyView() {
@@ -110,6 +143,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                     location, 18f
                 ))
+                updateUIRange(_slider.value)
                 userViewModel.requestedLocation.value = false
             }
         }
