@@ -12,13 +12,19 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_create"
         android:name="com.example.beacon.fragments.PostCreateFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_post_create" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_map"
+        android:name="com.example.beacon.fragments.MapFragment"
+        android:label="@string/title_map"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
         android:name="com.example.beacon.fragments.SettingsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_settings" />

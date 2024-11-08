@@ -7,4 +7,5 @@ import com.google.android.gms.maps.model.LatLng
 class UserViewModel: ViewModel() {
     val location = MutableLiveData<LatLng>()
     val requestedLocation = MutableLiveData(false)
+    val range = MutableLiveData(5.0f)
 }
