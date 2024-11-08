@@ -50,6 +50,30 @@
             android:textColor="#888888"
             android:layout_marginTop="8dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/dislike"
+                android:layout_width="194dp"
+                android:layout_height="wrap_content"
+                android:text="Dislike" />
+
+            <Button
+                android:id="@+id/like"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Like" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/report"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Report?" />
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
