@@ -38,7 +38,10 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
+                R.id.navigation_home,
+                R.id.navigation_create,
+                R.id.navigation_map,
+                R.id.navigation_settings
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -76,7 +79,7 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        userViewModel.location.value = LatLng(location.latitude, location.longitude)
+        userViewModel.location.postValue(LatLng(location.latitude, location.longitude))
     }
 
     override fun onRequestPermissionsResult(

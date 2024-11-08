@@ -9,16 +9,18 @@ import android.widget.Button
 import android.widget.ListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.android.volley.Request
+import androidx.lifecycle.ViewModelProvider
 import com.android.volley.toolbox.StringRequest
+import com.example.beacon.adapters.PostsAdapter
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
-import com.example.beacon.adapters.PostsAdapter
 import com.example.beacon.databinding.FragmentHomeBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants.BACKEND_IP
-import com.google.android.gms.maps.model.LatLng
+import com.example.beacon.view_models.UserViewModel
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import org.json.JSONObject
 
 class HomeFragment : Fragment() {
 
@@ -28,6 +30,8 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var postsAdapter: PostsAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,12 +40,8 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val dummyPosts = listOf(
-            BeaconPost("Anonymous", "Some text here", 49.279613292501836, -122.92005152774361),
-            BeaconPost("Anonymous", "Some text here", 49.279613292501836, -122.92005152774361)
-        )
 
-        val postsAdapter = PostsAdapter(requireActivity(), dummyPosts)
+        postsAdapter = PostsAdapter(requireActivity(), mutableListOf())
         val postListView = root.findViewById<ListView>(R.id.postsListView)
         postListView.adapter = postsAdapter
 
@@ -56,15 +56,57 @@ class HomeFragment : Fragment() {
     private fun getPostsFromServer() {
         val requestQueue = Volley.newRequestQueue(requireActivity())
         val url = "$BACKEND_IP/get"
-        val request = StringRequest(Request.Method.GET, url,
-        { response ->
-            val posts = Json.decodeFromString(BeaconPost.serializer(), response)
-            Log.d("debug", posts.toString())
-        },
-        { error ->
-            Toast.makeText(context, "Failed to get from server", Toast.LENGTH_SHORT).show()
-            Log.d("Error", error.toString())
-        })
+
+        // Get user's current location
+        val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+        val currentLocation = userViewModel.location.value
+
+        if (currentLocation == null) {
+            Toast.makeText(context, "Location not available", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Creating the JSON body with out current latitude and longitude
+        val params = JSONObject()
+        params.put("latitude", currentLocation.latitude)
+        params.put("longitude", currentLocation.longitude)
+
+        val request = object : StringRequest(
+            Method.POST, url,
+            { response ->
+                try {
+                    // Parse the response string into a list of BeaconPost objects
+                    val posts = Json.decodeFromString(
+                        ListSerializer(BeaconPost.serializer()),
+                        response
+                    )
+
+                    if (posts.isEmpty()) {
+                        Toast.makeText(requireContext(), "No posts found nearby.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Posts retrieved successfully!", Toast.LENGTH_SHORT).show()
+                    }
+
+                    postsAdapter.updatePosts(posts)
+                } catch (e: Exception) {
+                    Log.e("Error", "Parsing posts failed", e)
+                    Toast.makeText(requireContext(), "Error parsing posts.", Toast.LENGTH_SHORT).show()
+                }
+            },
+            { error ->
+                Toast.makeText(context, "Failed to retrieve posts from server.", Toast.LENGTH_SHORT).show()
+                Log.e("Error", error.toString())
+            }
+        ) {
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+
+            override fun getBody(): ByteArray {
+                return params.toString().toByteArray(Charsets.UTF_8)
+            }
+        }
+
         requestQueue.add(request)
     }
 

@@ -1,3 +1,4 @@
+import math
 import database.databaseModule as dbModule
 import configparser
 import json
@@ -7,11 +8,11 @@ def sendPosts(jsonFile, connection, dbConnection):
     print("send posts in range of:", jsonFile)
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__),'../../config.ini'))
-    range = int(config.get("General", "posts_range"))
+    posts_range_km = int(config.get("General", "posts_range"))
     latitude = jsonFile["latitude"]
     longitude = jsonFile["longitude"]
-    lowLat, highLat = getLatRange(latitude, range)
-    lowLong, highLong = getLongRange(longitude, range)
+    lowLat, highLat = getLatRange(latitude, posts_range_km)
+    lowLong, highLong = getLongRange(longitude,latitude, posts_range_km)
     postlist = dbModule.getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection)
     sendPostList(connection, postlist)
 
@@ -28,16 +29,19 @@ def sendPostList(connection, postlist):
 def postListListToPostObjectList(postlist):
     postObjList = []
     for post in postlist:
-        postObj = {}
         try:
-            postObj["name"] = post[0]
-            postObj["content"] = post[1]
-            postObj["latitude"] = post[2]
-            postObj["longitude"] = post[3]
-            postObj["datetime"] = post[4]
+            postObj = {
+                "name": post[0],
+                "content": post[1],
+                "latitude": post[2],
+                "longitude": post[3],
+                "datetime": post[4]
+            }
             postObjList.append(postObj)
-        except:
-            print("error parsing postlist in sendPosts")
+        except IndexError as e:
+            print("IndexError parsing postlist in sendPosts:", e)
+        except Exception as e:
+            print("Error parsing postlist in sendPosts:", e)
     return postObjList
 
 def getLatRange(latitude, km):
@@ -46,8 +50,8 @@ def getLatRange(latitude, km):
     highLat = latitude + degreeRange
     return round(lowLat,8), round(highLat,8)
 
-def getLongRange(longitude, km):
-    degreeRange = km / 111
+def getLongRange(longitude, latitude, km):
+    degreeRange = km / (111 * math.cos(math.radians(latitude)))
     lowLong = longitude - degreeRange
     highLong = longitude + degreeRange
-    return lowLong, highLong
+    return round(lowLong, 8), round(highLong, 8)
