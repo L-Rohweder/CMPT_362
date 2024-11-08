@@ -31,6 +31,7 @@ Interaction Receiving:
             {
             "latitude": 30.3,
             "longitude": 30.3
+            "range": 5
             }
         
         you will receive a body of ->
