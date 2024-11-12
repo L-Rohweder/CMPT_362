@@ -17,4 +17,6 @@
     <string name="_0m">0m</string>
     <string name="_0">0%</string>
     <string name="_100">100%</string>
+    <string name="settingsProfileText"><b>User Profile</b>\nName, Email, etc.</string>
+    <string name="settingsUnitsText"><b>Units Preference</b>\nSelect Units</string>
 </resources>

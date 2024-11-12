@@ -1,37 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:paddingStart="5dp"
     tools:context=".fragments.SettingsFragment">
 
     <TextView
         android:id="@+id/openProfileText"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="305dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:clickable="true"
         android:focusable="true"
-        android:text="User Profile\nName, Email, etc."
-        app:layout_constraintBottom_toTopOf="@+id/text_notifications"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/settingsProfileText" />
 
-    <TextView
-        android:id="@+id/text_notifications"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="348dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:text="HELLO!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openProfileText" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="123dp"
+            android:layout_height="match_parent"
+            android:text="@string/settingsUnitsText" />
+
+        <RadioGroup
+            android:id="@+id/unitsRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RadioButton
+                android:id="@+id/metricRadioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Metric" />
+
+            <RadioButton
+                android:id="@+id/imperialRadioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Imperial" />
+        </RadioGroup>
+    </LinearLayout>
+
+</LinearLayout>
