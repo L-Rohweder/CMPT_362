@@ -39,7 +39,7 @@ class ImageHandler(private val context:Context) {
             tempImgUri  = FileProvider.getUriForFile(context,"com.example.beacon.activities", tempImgFile)
         }
 
-        fun showDialog(activity: Activity, cameraResult: ActivityResultLauncher<Intent>) {
+        fun showDialog(activity: Activity, cameraResult: ActivityResultLauncher<Intent>, galleryResult: ActivityResultLauncher<Intent>) {
             val alertDialog = AlertDialog.Builder(context)
             val options = arrayOf("Open Camera", "Select From Gallery")
             alertDialog.setTitle("Pick Profile Picture")
@@ -49,6 +49,10 @@ class ImageHandler(private val context:Context) {
                     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, tempImgUri)
                     cameraResult.launch(intent)
+                }
+                else{
+                    val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    galleryResult.launch(intent)
                 }
 
             }
@@ -65,8 +69,14 @@ class ImageHandler(private val context:Context) {
                     Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA), 0)
             }
-
         }
+
+    fun checkGalleryPerms(activity: Activity){
+        if(ContextCompat.checkSelfPermission(context,
+                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
+        }
+    }
 
         //Creates a bitmap for our image
         fun getBitmap(context: Context, imgUri: Uri): Bitmap {

@@ -3,7 +3,11 @@ package com.example.beacon.fragments
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +40,7 @@ class PostCreateFragment : Fragment() {
     private lateinit var imageHandler: ImageHandler
     private lateinit var  image: ImageView
     private lateinit var cameraResult: ActivityResultLauncher<Intent>
+    private lateinit var galleryResult: ActivityResultLauncher<Intent>
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -63,12 +68,28 @@ class PostCreateFragment : Fragment() {
 
         }
 
+
+        galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+                result: ActivityResult ->
+            if(result.resultCode == Activity.RESULT_OK && result.data != null){
+                val imageUri: Uri? = result.data?.data
+                imageUri?.let {
+                    val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, it)
+                    image.setImageBitmap(bitmap)
+
+                }
+            }
+
+        }
+
+
         publishPostButton.setOnClickListener {
             publishPost()
         }
         addImageButton.setOnClickListener(){
             imageHandler.checkCameraPerms(requireActivity())
-            imageHandler.showDialog(requireActivity(), cameraResult)
+            imageHandler.checkGalleryPerms(requireActivity())
+            imageHandler.showDialog(requireActivity(), cameraResult, galleryResult)
         }
 
         return root

@@ -8,8 +8,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -40,6 +42,7 @@ class ProfileActivity : AppCompatActivity(){
     private lateinit var email: TextView
     private lateinit var name: TextView
     private lateinit var cameraResult: ActivityResultLauncher<Intent>
+    private lateinit var galleryResult: ActivityResultLauncher<Intent>
     private lateinit var profileImageViewModel: ProfileImageModel
     private lateinit var pfpImageView: ImageView
     private lateinit var imageHandler: ImageHandler
@@ -64,13 +67,28 @@ class ProfileActivity : AppCompatActivity(){
 
         photoButton.setOnClickListener(){
             imageHandler.checkCameraPerms(this)
-            imageHandler.showDialog(this,cameraResult)
+            imageHandler.checkGalleryPerms(this)
+            imageHandler.showDialog(this,cameraResult, galleryResult)
         }
         cameraResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
                 result: ActivityResult ->
             if(result.resultCode == Activity.RESULT_OK){
                 val bitmap: Bitmap = imageHandler.getBitmap(this, imageHandler.getTempImgUri())
                 profileImageViewModel.profileImage.value = bitmap
+            }
+
+        }
+
+        galleryResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+                result: ActivityResult ->
+            if(result.resultCode == Activity.RESULT_OK && result.data != null){
+                val imageUri: Uri? = result.data?.data
+                imageUri?.let {
+                    val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, it)
+                    profileImageViewModel.profileImage.value = bitmap
+                    pfpImageView.setImageBitmap(bitmap)
+
+                }
             }
 
         }
