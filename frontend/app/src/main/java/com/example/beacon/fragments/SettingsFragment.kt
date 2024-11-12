@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.example.beacon.R
 import com.example.beacon.activities.ProfileActivity
 import com.example.beacon.databinding.FragmentSettingsBinding
+import com.example.beacon.utils.Constants
 
 class SettingsFragment : Fragment() {
 
@@ -34,10 +35,10 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
         unitsRadioGroup = root.findViewById(R.id.unitsRadioGroup)
-        prefs = requireActivity().getSharedPreferences("beacon", Context.MODE_PRIVATE)
+        prefs = requireActivity().getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
         unitsRadioGroup.setOnCheckedChangeListener { radioGroup, id ->
             val checkedButton = root.findViewById<TextView>(id)
-            prefs.edit().putString("units", checkedButton.text.toString()).apply()
+            prefs.edit().putString(Constants.SP_UNITS, checkedButton.text.toString()).apply()
         }
         profileButton = root.findViewById<TextView>(R.id.openProfileText)
         profileButton.setOnClickListener(){
