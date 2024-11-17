@@ -6,4 +6,5 @@ object Constants {
 
     const val SP_KEY = "SHARED_PREFS"
     const val SP_RANGE_KM = "SP_RANGE_KM"
+    const val SP_UNITS = "SP_UNITS"
 }
