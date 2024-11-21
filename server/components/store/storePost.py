@@ -5,6 +5,8 @@ def storePost(jsonFile, dbConnection):
     latitude = jsonFile["latitude"]
     longitude = jsonFile["longitude"]
     imageLink = jsonFile["imageLink"]
+    userID = jsonFile["userID"]
+    username = jsonFile["username"]
     print("saving:")
     print("""   
             name:      {}
@@ -12,6 +14,8 @@ def storePost(jsonFile, dbConnection):
             latitude:  {}
             longitude: {}
             imageLink: {}
-          """.format(name, content, latitude, longitude, imageLink))
+            userID:    {}
+            username:  {}
+          """.format(name, content, latitude, longitude, imageLink, userID, username))
 
-    dbModule.savePost(name, content, float(latitude), float(longitude), imageLink, dbConnection)
+    dbModule.savePost(name, content, float(latitude), float(longitude), imageLink, userID, username, dbConnection)

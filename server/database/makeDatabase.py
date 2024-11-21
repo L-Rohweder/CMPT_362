@@ -20,6 +20,10 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
     longitude REAL NOT NULL,
                
     image_link character varying(256) ,
+               
+    user_id INT,
+               
+    username character varying(256) ,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 

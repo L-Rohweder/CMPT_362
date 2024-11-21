@@ -1,9 +1,9 @@
-def savePost(name, content, latitude, longitude, imageLink, dbConnection):
+def savePost(name, content, latitude, longitude, imageLink, userID, username, dbConnection):
     cursor = dbConnection.cursor()
     try:
         cursor.execute('''
-            INSERT INTO posts (name, content, latitude, longitude, image_link) VALUES (?, ?, ?, ?, ?)
-        ''', (name, content, latitude, longitude, imageLink))
+            INSERT INTO posts (name, content, latitude, longitude, image_link, user_id, username) VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (name, content, latitude, longitude, imageLink, userID, username))
         dbConnection.commit()
     except Exception as e:
         print("error saving in databaseModule: ", e)
