@@ -111,7 +111,7 @@ class PostCreateFragment : Fragment() {
 
         userViewModel.location.observe(viewLifecycleOwner) { location ->
             if (userViewModel.requestedLocation.value == true) {
-                val post = BeaconPost(username, content, location.latitude, location.longitude)
+                val post = BeaconPost(username, content, location.latitude, location.longitude, "")
                 postToServer(post)
                 userViewModel.requestedLocation.value = false
             }
