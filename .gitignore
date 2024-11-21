@@ -1,6 +1,5 @@
-.gradle
-__pycache__
-posts.db
+frontend/.gradle
+server/__pycache__
 
 # IDE files and folders (applies to all .idea folders)
 .idea/
@@ -13,3 +12,6 @@ frontend/app/build/
 
 #Ignore all local properties in any folder
 **/local.properties
+
+server/database/posts.db
+server/database/users.db
