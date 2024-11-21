@@ -18,7 +18,9 @@ Interaction Sending:
             "content": "This is the post content",
             "latitude": 30.3,
             "longitude": 30.3,
-            "imageLink": "http://thisisthehost.com/img"
+            "imageLink": "http://thisisthehost.com/img",
+            "userID": 77,
+            "username": "testUsername1"
             }
         //if post has no image, make the link empty quotes ""
 
@@ -44,6 +46,8 @@ Interaction Receiving:
                 "latitude": 30.3,
                 "longitude": 30.3,
                 "imageLink": "http://thisisthehost.com/img",
+                "userID": 77,
+                "username": "testUsername1",
                 "datetime": "yyyy-mm-dd hh-mm-ss"
                 },
             ]
