@@ -55,6 +55,10 @@ class Server:
                 connection.close()
             case 'getAll':
                 sendAllPosts(connection, self.db_connection)
+            case 'postUser':
+                pass
+            case 'getUser':
+                pass
 
 
     def stop(self):
