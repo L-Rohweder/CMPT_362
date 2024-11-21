@@ -3,7 +3,7 @@
     <string name="title_activity_tabbed">TabbedActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_settings">Settings</string>
     <string name="content">Content</string>
     <string name="username">Username</string>
     <string name="content_of_post">Content of post.</string>

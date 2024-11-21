@@ -11,7 +11,7 @@ def sendUser(jsonFile, connection, dbConnection):
         # Get user
         user = dbModule.get_user_by_username(username, dbConnection)
         if not user:
-            connection.sendall(Response.ERROR("Invalid credentials").encode('utf-8'))
+            connection.sendall(Response.ERROR("Invalid username or password").encode('utf-8'))
             return
             
         # Parse stored password hash and salt
@@ -32,8 +32,8 @@ def sendUser(jsonFile, connection, dbConnection):
             })
             connection.sendall(Response.OKBODY(response).encode('utf-8'))
         else:
-            connection.sendall(Response.ERROR("Invalid credentials").encode('utf-8'))
+            connection.sendall(Response.ERROR("Invalid username or password").encode('utf-8'))
             
     except Exception as e:
         print(f"Login error: {e}")
-        connection.sendall(Response.ERROR("Login failed").encode('utf-8'))
+        connection.sendall(Response.ERROR("Invalid username or password").encode('utf-8'))

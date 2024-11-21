@@ -47,8 +47,62 @@ class SignupActivity : AppCompatActivity() {
         }
     }
 
+    private fun validateInputs(): Boolean {
+        val email = emailInput.text.toString()
+        val username = usernameInput.text.toString()
+        val password = passwordInput.text.toString()
+        val firstname = firstnameInput.text.toString()
+        val lastname = lastnameInput.text.toString()
+
+        when {
+            email.isBlank() -> {
+                emailInput.error = "Email cannot be empty"
+                return false
+            }
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                emailInput.error = "Invalid email format"
+                return false
+            }
+            username.isBlank() -> {
+                usernameInput.error = "Username cannot be empty"
+                return false
+            }
+            username.length < 3 -> {
+                usernameInput.error = "Username must be at least 3 characters"
+                return false
+            }
+            password.isBlank() -> {
+                passwordInput.error = "Password cannot be empty"
+                return false
+            }
+            password.length < 6 -> {
+                passwordInput.error = "Password must be at least 6 characters"
+                return false
+            }
+            !password.matches(".*[A-Z].*".toRegex()) -> {
+                passwordInput.error = "Password must contain at least one uppercase letter"
+                return false
+            }
+            !password.matches(".*[0-9].*".toRegex()) -> {
+                passwordInput.error = "Password must contain at least one number"
+                return false
+            }
+            firstname.isBlank() -> {
+                firstnameInput.error = "First name cannot be empty"
+                return false
+            }
+            lastname.isBlank() -> {
+                lastnameInput.error = "Last name cannot be empty"
+                return false
+            }
+        }
+        return true
+    }
+
     private fun performSignup(email: String, username: String, password: String, 
                             firstname: String, lastname: String) {
+        if (!validateInputs()) return
+
         val requestQueue = Volley.newRequestQueue(this)
         val url = "$BACKEND_IP/postUser"
 
@@ -62,20 +116,28 @@ class SignupActivity : AppCompatActivity() {
 
         val request = JsonObjectRequest(
             Request.Method.POST, url, body,
-            { _ ->
-                Toast.makeText(
-                    this,
-                    "Registration successful! Please login.",
-                    Toast.LENGTH_LONG
-                ).show()
-                finish() // Return to login screen
+            { response ->
+                if (response.has("error")) {
+                    Toast.makeText(this, response.getString("error"), Toast.LENGTH_LONG).show()
+                    return@JsonObjectRequest
+                }
+                Toast.makeText(this, "Registration successful! Please login.", Toast.LENGTH_LONG).show()
+                finish()
             },
             { error ->
-                Toast.makeText(
-                    this,
-                    "Registration failed: ${error.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                val errorMessage = when (error) {
+                    is com.android.volley.NoConnectionError -> "No internet connection"
+                    is com.android.volley.TimeoutError -> "Connection timed out"
+                    is com.android.volley.ServerError -> {
+                        if (error.networkResponse?.statusCode == 409) {
+                            "Username already exists"
+                        } else {
+                            "Server error occurred"
+                        }
+                    }
+                    else -> "Registration failed: ${error.message ?: "Unknown error"}"
+                }
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             })
 
         requestQueue.add(request)
