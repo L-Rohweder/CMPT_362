@@ -16,9 +16,7 @@ class Server:
         config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
         self.config.read(config_path)
         self.db_path = os.path.join(os.path.dirname(__file__),"database", self.config.get("Database", "db_name"))
-        self.user_db_path = os.path.join(os.path.dirname(__file__),"database", self.config.get("Database", "user_db_name"))
         self.db_connection = sqlite3.connect(self.db_path, check_same_thread=False)
-        self.user_db_connection = sqlite3.connect(self.user_db_path, check_same_thread=False)
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_address = ('0.0.0.0', int(self.config.get('General','server_port')))
@@ -62,11 +60,11 @@ class Server:
                 sendAllPosts(connection, self.db_connection)
                 connection.close()
             case 'postUser':
-                storeUser(jsonfile, self.user_db_connection)
+                storeUser(jsonfile, self.db_connection)
                 connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
                 connection.close()
             case 'getUser':
-                sendUser(jsonfile, connection, self.user_db_connection)
+                sendUser(jsonfile, connection, self.db_connection)
                 connection.close()
 
 
