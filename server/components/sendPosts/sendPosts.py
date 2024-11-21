@@ -35,7 +35,8 @@ def postListListToPostObjectList(postlist):
                 "content": post[1],
                 "latitude": post[2],
                 "longitude": post[3],
-                "datetime": post[4]
+                "imageLink": post[4],
+                "datetime": post[5]
             }
             postObjList.append(postObj)
         except IndexError as e:

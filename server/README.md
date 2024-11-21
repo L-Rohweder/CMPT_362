@@ -17,8 +17,10 @@ Interaction Sending:
             "name": "name here",
             "content": "This is the post content",
             "latitude": 30.3,
-            "longitude": 30.3
+            "longitude": 30.3,
+            "imageLink": "http://thisisthehost.com/img"
             }
+        //if post has no image, make the link empty quotes ""
 
 Interaction Receiving:
     Remote Server:
@@ -41,6 +43,7 @@ Interaction Receiving:
                 "content": "This is the post content",
                 "latitude": 30.3,
                 "longitude": 30.3,
+                "imageLink": "http://thisisthehost.com/img",
                 "datetime": "yyyy-mm-dd hh-mm-ss"
                 },
             ]
