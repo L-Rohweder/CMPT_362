@@ -1,7 +1,7 @@
 import sqlite3
 from utils.DaemonThread import DaemonThread
-from components.sendPosts.sendPosts import sendPosts, sendAllPosts
-from components.storePost.storePost import storePost
+from components.send.sendPosts import sendPosts, sendAllPosts
+from components.store.storePost import storePost
 import utils.Response as Response
 import configparser
 import socket
