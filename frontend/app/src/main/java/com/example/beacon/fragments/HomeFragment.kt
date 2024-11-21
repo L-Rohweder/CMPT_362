@@ -60,6 +60,7 @@ class HomeFragment : Fragment() {
         // Get user's current location
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         val currentLocation = userViewModel.location.value
+        val range = userViewModel.range.value
 
         if (currentLocation == null) {
             Toast.makeText(context, "Location not available", Toast.LENGTH_SHORT).show()
@@ -70,6 +71,7 @@ class HomeFragment : Fragment() {
         val params = JSONObject()
         params.put("latitude", currentLocation.latitude)
         params.put("longitude", currentLocation.longitude)
+        params.put("range", range)
 
         val request = object : StringRequest(
             Method.POST, url,

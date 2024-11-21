@@ -1,11 +1,10 @@
-Setup:
-    run make database: python3 database/makeDatabase.py 
-    or python3 server/database/makeDatabase.py from project root
+# Setup Database
+To create the database run: `python3 server/database/makeDatabase.py`
 
-Starting:
-    python3 main.py or python3 server/main.py from root
+# Starting Server
+To start the server: `python3 server/main.py`
 
-Interaction Sending:
+# Interaction Sending
     Remote Server:
         post to SERVERIP:server_port/post
     Local Machine:
@@ -22,7 +21,7 @@ Interaction Sending:
             }
         //if post has no image, make the link empty quotes ""
 
-Interaction Receiving:
+# Interaction Receiving
     Remote Server:
         post to SERVERIP:server_port/get
     Local Machine:
