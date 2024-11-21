@@ -33,7 +33,7 @@ cursor = connection.cursor()
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS users (
 
-    id character varying(256) ,
+    id INT ,
     
     email character varying(256) ,
                
