@@ -32,6 +32,7 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
     latitude REAL NOT NULL,
     longitude REAL NOT NULL,
     image_link character varying(256),
+    username character varying(256),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );""")

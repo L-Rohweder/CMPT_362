@@ -1,6 +1,7 @@
 package com.example.beacon.fragments
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -26,6 +27,7 @@ import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
+import com.example.beacon.activities.LoginActivity
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants.BACKEND_IP
@@ -101,17 +103,37 @@ class PostCreateFragment : Fragment() {
 
         // Validate inputs
         if (username.isBlank() || content.isBlank()) {
-                Toast.makeText(requireContext(), "Please enter both username and content.", Toast.LENGTH_SHORT).show()
-                return
+            Toast.makeText(requireContext(), "Please enter both username and content.", Toast.LENGTH_SHORT).show()
+            return
         }
 
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+        val prefs = requireActivity().getSharedPreferences("AUTH", Context.MODE_PRIVATE)
+        val userId = prefs.getInt("USER_ID", -1)
+        val storedUsername = prefs.getString("USERNAME", "")
+
+        if (userId == -1) {
+            Toast.makeText(requireContext(), "Please login again", Toast.LENGTH_SHORT).show()
+            // Redirect to login
+            startActivity(Intent(requireActivity(), LoginActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+            requireActivity().finish()
+            return
+        }
 
         userViewModel.requestedLocation.value = true
 
         userViewModel.location.observe(viewLifecycleOwner) { location ->
             if (userViewModel.requestedLocation.value == true) {
-                val post = BeaconPost(username, content, location.latitude, location.longitude)
+                val post = BeaconPost(
+                    name = username,
+                    content = content,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    imageLink = "",  // Add image handling if needed
+                    userID = userId,
+                    username = storedUsername ?: username
+                )
                 postToServer(post)
                 userViewModel.requestedLocation.value = false
             }
@@ -119,29 +141,64 @@ class PostCreateFragment : Fragment() {
     }
 
     private fun postToServer(post: BeaconPost) {
-        val requestQueue = Volley.newRequestQueue(requireActivity())
+        // Check if fragment is attached to context
+        if (!isAdded) return
+
+        val requestQueue = Volley.newRequestQueue(requireContext())
         val url = "$BACKEND_IP/post"
-        val body = JSONObject(Json.encodeToString(BeaconPost.serializer(), post))
+        val body = JSONObject().apply {
+            put("name", post.name)
+            put("content", post.content)
+            put("latitude", post.latitude)
+            put("longitude", post.longitude)
+            put("imageLink", post.imageLink)
+            put("userID", post.userID)
+            put("username", post.username)
+        }
 
         val request = JsonObjectRequest(
             Request.Method.POST, url, body,
-            { _ ->
-                // Success
-                Toast.makeText(requireContext(), "Post published successfully!", Toast.LENGTH_SHORT).show()
-                // Clear input fields
-                binding.usernameEditText.text.clear()
-                binding.contentEditText.text.clear()
+            { response ->
+                // Check if fragment is still attached
+                if (isAdded) {
+                    if (response.has("error")) {
+                        Toast.makeText(requireContext(), response.getString("error"), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Post published successfully!", Toast.LENGTH_SHORT).show()
+                        binding.usernameEditText.text.clear()
+                        binding.contentEditText.text.clear()
+                    }
+                }
             },
             { error ->
-                // Failure
-                Toast.makeText(requireContext(), "Failed to publish post.", Toast.LENGTH_SHORT).show()
-                Log.e("Error", error.toString())
+                // Check if fragment is still attached before showing error
+                if (isAdded) {
+                    val errorMessage = when {
+                        error.networkResponse?.data != null -> {
+                            try {
+                                val errorJson = JSONObject(String(error.networkResponse.data))
+                                errorJson.getString("error")
+                            } catch (e: Exception) {
+                                "Failed to publish post: Network error"
+                            }
+                        }
+                        error is com.android.volley.NoConnectionError -> "No internet connection"
+                        error is com.android.volley.TimeoutError -> "Connection timed out"
+                        else -> "Failed to publish post: Please try again"
+                    }
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                    Log.e("PostError", "Error: ${error.message}", error)
+                }
             })
+
+        // Add tag to request for cleanup
+        request.tag = this
         requestQueue.add(request)
     }
 
-
     override fun onDestroyView() {
+        // Cancel any pending requests when fragment is destroyed
+        Volley.newRequestQueue(requireContext()).cancelAll(this)
         super.onDestroyView()
         _binding = null
     }

@@ -8,11 +8,11 @@ def sendPosts(jsonFile, connection, dbConnection):
     print("send posts in range of:", jsonFile)
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__),'../../config.ini'))
-    posts_range_km = jsonFile["range"]#int(config.get("General", "posts_range"))
+    posts_range_km = jsonFile.get("range", int(config.get("General", "posts_range")))
     latitude = jsonFile["latitude"]
     longitude = jsonFile["longitude"]
     lowLat, highLat = getLatRange(latitude, posts_range_km)
-    lowLong, highLong = getLongRange(longitude,latitude, posts_range_km)
+    lowLong, highLong = getLongRange(longitude, latitude, posts_range_km)
     postlist = dbModule.getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection)
     sendPostList(connection, postlist)
 

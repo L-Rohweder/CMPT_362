@@ -4,7 +4,7 @@ def storePost(jsonFile, dbConnection):
     content = jsonFile["content"]
     latitude = jsonFile["latitude"]
     longitude = jsonFile["longitude"]
-    imageLink = jsonFile["imageLink"]
+    imageLink = jsonFile.get("imageLink", "")
     userID = jsonFile["userID"]
     username = jsonFile["username"]
     print("saving:")
