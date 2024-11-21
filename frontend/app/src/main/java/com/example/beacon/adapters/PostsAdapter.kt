@@ -1,14 +1,19 @@
 package com.example.beacon.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.beacon.R
+import com.example.beacon.activities.RepliesActivity
 import com.example.beacon.models.BeaconPost
+import com.example.beacon.utils.Constants.EXTRA_POST
+import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -44,6 +49,13 @@ class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
         // Display formatted datetime
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
         datetimeTextView.text = formatDateTime(post.datetime)
+
+        val layout = listWidgetView.findViewById<LinearLayout>(R.id.layout)
+        layout.setOnClickListener {
+            val intent = Intent(context, RepliesActivity::class.java)
+            intent.putExtra(EXTRA_POST, Json.encodeToString(BeaconPost.serializer(), post))
+            context.startActivity(intent)
+        }
 
         return listWidgetView
     }

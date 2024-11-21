@@ -2,6 +2,7 @@ import sqlite3
 from utils.DaemonThread import DaemonThread
 from components.sendPosts.sendPosts import sendPosts, sendAllPosts
 from components.storePost.storePost import storePost
+from components.storeReply.storeReply import storeReply
 import utils.Response as Response
 import configparser
 import socket
@@ -51,6 +52,10 @@ class Server:
                 sendPosts(jsonfile, connection, self.db_connection)
             case 'post':
                 storePost(jsonfile, self.db_connection)
+                connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
+                connection.close()
+            case "reply":
+                storeReply(jsonfile, self.db_connection)
                 connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
                 connection.close()
             case 'getAll':

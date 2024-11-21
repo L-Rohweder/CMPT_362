@@ -8,6 +8,16 @@ def savePost(name, content, latitude, longitude, imageLink, dbConnection):
     except Exception as e:
         print("error saving in databaseModule: ", e)
 
+def saveReply(name, content, dbConnection):
+    cursor = dbConnection.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO replies (name, content) VALUES (?, ?)
+        ''', (name, content))
+        dbConnection.commit()
+    except Exception as e:
+        print("error saving in databaseModule: ", e)
+
 def getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection):
     cursor = dbConnection.cursor()
     #print(f"lat: {lowLat}-{highLat}, long: {lowLong}-{highLong}")

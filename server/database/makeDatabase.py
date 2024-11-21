@@ -24,5 +24,15 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
 
 );""")
 
+cursor.execute("""CREATE TABLE IF NOT EXISTS replies (
+
+    name character varying(256),
+    
+    content character varying(256),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);""")
+
 connection.commit()
 connection.close()

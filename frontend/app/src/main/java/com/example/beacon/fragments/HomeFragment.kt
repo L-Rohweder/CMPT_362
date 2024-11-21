@@ -1,5 +1,6 @@
 package com.example.beacon.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,9 +15,11 @@ import com.android.volley.toolbox.StringRequest
 import com.example.beacon.adapters.PostsAdapter
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
+import com.example.beacon.activities.RepliesActivity
 import com.example.beacon.databinding.FragmentHomeBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants.BACKEND_IP
+import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.view_models.UserViewModel
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
