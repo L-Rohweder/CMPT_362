@@ -30,3 +30,31 @@ def printAllPosts(dbConnection):
     print("All posts:")
     for row in rows:
         print(row)
+
+def save_user(email, username, firstname, lastname, password, dbConnection):
+    cursor = dbConnection.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO users (email, username, firstname, lastname, password)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (email, username, firstname, lastname, password))
+        dbConnection.commit()
+        return cursor.lastrowid
+    except Exception as e:
+        print("Error saving user:", e)
+        dbConnection.rollback()
+        return None
+
+def get_user_by_username(username, dbConnection):
+    cursor = dbConnection.cursor()
+    try:
+        cursor.execute('''
+            SELECT id, email, username, firstname, lastname, gender, bio, 
+                   profile_image, password, created_at
+            FROM users
+            WHERE username = ?
+        ''', (username,))
+        return cursor.fetchone()
+    except Exception as e:
+        print("Error getting user:", e)
+        return None

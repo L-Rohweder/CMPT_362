@@ -48,25 +48,30 @@ class Server:
             print("json processing failed", e)
     
     def passToComponent(self, endpoint, jsonfile, connection):
-        match endpoint:
-            case 'get':
-                sendPosts(jsonfile, connection, self.db_connection)
-                connection.close()
-            case 'post':
-                storePost(jsonfile, self.db_connection)
-                connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
-                connection.close()
-            case 'getAll':
-                sendAllPosts(connection, self.db_connection)
-                connection.close()
-            case 'postUser':
-                storeUser(jsonfile, self.db_connection)
-                connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
-                connection.close()
-            case 'getUser':
-                sendUser(jsonfile, connection, self.db_connection)
-                connection.close()
-
+        try:
+            match endpoint:
+                case 'get':
+                    sendPosts(jsonfile, connection, self.db_connection)
+                case 'post':
+                    storePost(jsonfile, self.db_connection)
+                    connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
+                case 'getAll':
+                    sendAllPosts(connection, self.db_connection)
+                case 'postUser':
+                    print(f"Processing registration request for user: {jsonfile.get('username')}")
+                    success = storeUser(jsonfile, self.db_connection)
+                    if success:
+                        connection.sendall(Response.OKBODY(json.dumps({"message": "Registration successful"})).encode('utf-8'))
+                    else:
+                        connection.sendall(Response.ERROR("Registration failed").encode('utf-8'))
+                case 'getUser':
+                    print(f"Processing login request for user: {jsonfile.get('username')}")
+                    sendUser(jsonfile, connection, self.db_connection)
+        except Exception as e:
+            print(f"Error in passToComponent: {e}")
+            connection.sendall(Response.ERROR("Server error").encode('utf-8'))
+        finally:
+            connection.close()
 
     def stop(self):
         self.db_connection.close()
