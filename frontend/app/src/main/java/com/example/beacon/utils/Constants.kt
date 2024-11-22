@@ -9,4 +9,6 @@ object Constants {
     const val SP_UNITS = "SP_UNITS"
 
     const val EXTRA_POST = "POST"
+    const val EXTRA_REPLY_LIST = "REPLY_LIST"
+    const val EXTRA_LOCATION = "LOCATION"
 }
