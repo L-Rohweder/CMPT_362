@@ -3,6 +3,7 @@ from utils.DaemonThread import DaemonThread
 from components.sendPosts.sendPosts import sendPosts, sendAllPosts
 from components.storePost.storePost import storePost
 from components.storeReply.storeReply import storeReply
+from components.sendReplies.sendReplies import sendReplies
 import utils.Response as Response
 import configparser
 import socket
@@ -58,6 +59,8 @@ class Server:
                 storeReply(jsonfile, self.db_connection)
                 connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
                 connection.close()
+            case "getReplies":
+                sendReplies(jsonfile, connection, self.db_connection)
             case 'getAll':
                 sendAllPosts(connection, self.db_connection)
 

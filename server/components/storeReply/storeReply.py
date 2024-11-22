@@ -1,11 +1,13 @@
 import database.databaseModule as dbModule
 def storeReply(jsonFile, dbConnection):
+    postId = jsonFile["postId"]
     name = jsonFile["name"]
     content = jsonFile["content"]
     print("saving:")
-    print("""   
+    print("""
+            postId:    {}
             name:      {}
             content:   {}
-          """.format(name, content))
+          """.format(postId, name, content))
 
-    dbModule.saveReply(name, content, dbConnection)
+    dbModule.saveReply(postId, name, content, dbConnection)

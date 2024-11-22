@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 class BeaconReply(
     val name: String,
     val content: String,
+    val postId: Int,
+    val id: Int = -1,
     val likes: Int = 0,
     val dislikes: Int = 0,
-    val postId: Long = -1,
     val userId: Long = -1,
     val datetime: String = ""
 ) {
