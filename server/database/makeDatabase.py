@@ -8,7 +8,8 @@ db_path = os.path.join(os.path.dirname(__file__),"../database", config.get("Data
 connection = sql.connect(db_path)
 cursor = connection.cursor()
 
-cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
+cursor.execute("""CREATE TABLE IF NOT EXISTS posts (           
+    id integer primary key,
 
     name character varying(256) ,
     
@@ -22,6 +23,20 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
+);""")
+
+cursor.execute("""CREATE TABLE IF NOT EXISTS replies (
+    id integer primary key,
+    
+    postId integer,
+
+    name character varying(256),
+    
+    content character varying(256),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+               
+    FOREIGN KEY(postId) REFERENCES posts(id)
 );""")
 
 connection.commit()

@@ -21,7 +21,6 @@ def sendAllPosts(connection, dbConnection):
     postlist = dbModule.getAllPosts(dbConnection)
     sendPostList(connection, postlist)
 
-
 def sendPostList(connection, postlist):
     response = json.dumps(postListListToPostObjectList(postlist))
     connection.sendall(Response.OKBODY(response).encode('utf-8'))
@@ -31,12 +30,13 @@ def postListListToPostObjectList(postlist):
     for post in postlist:
         try:
             postObj = {
-                "name": post[0],
-                "content": post[1],
-                "latitude": post[2],
-                "longitude": post[3],
-                "imageLink": post[4],
-                "datetime": post[5]
+                "id":post[0],
+                "name": post[1],
+                "content": post[2],
+                "latitude": post[3],
+                "longitude": post[4],
+                "imageLink": post[5],
+                "datetime": post[6]
             }
             postObjList.append(postObj)
         except IndexError as e:

@@ -9,6 +9,7 @@ data class BeaconPost(
     val latitude: Double,
     val longitude: Double,
     val imageLink: String,
+    val id: Int = -1,
     val datetime: String = "",
     ) {
     fun getFormattedPosition(): String {

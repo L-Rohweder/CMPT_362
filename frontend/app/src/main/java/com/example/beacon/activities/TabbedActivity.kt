@@ -6,6 +6,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -24,6 +25,7 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
     private lateinit var binding: ActivityTabbedBinding
     private lateinit var locationManager: LocationManager
 
+    private var locationFound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +80,11 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
+        if (!locationFound) {
+            locationFound = true
+            Toast.makeText(this, "location found", Toast.LENGTH_SHORT).show()
+        }
+
         val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         userViewModel.location.postValue(LatLng(location.latitude, location.longitude))
     }
