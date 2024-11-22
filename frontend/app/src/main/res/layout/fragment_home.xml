@@ -7,6 +7,14 @@
     android:background="#FFFFFF"
     tools:context=".fragments.HomeFragment">
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        />
+
     <Button
         android:id="@+id/getPostsButton"
         android:layout_width="wrap_content"
