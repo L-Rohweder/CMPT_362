@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
@@ -28,8 +29,12 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
-    ArrayAdapter<BeaconPost>(context, R.layout.posts_adapter_view, posts) {
+class PostsAdapter(
+    context: Context,
+    private var posts: List<BeaconPost>,
+    private var progressBar: ProgressBar
+): ArrayAdapter<BeaconPost>(context, R.layout.posts_adapter_view, posts) {
+
     override fun getItem(position: Int): BeaconPost {
         return posts[position]
     }
@@ -60,8 +65,7 @@ class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
         datetimeTextView.text = formatDateTime(post.datetime)
 
-        val layout = listWidgetView.findViewById<LinearLayout>(R.id.layout)
-        layout.setOnClickListener {
+        listWidgetView.setOnClickListener {
             getRepliesFromServer(post)
         }
 
@@ -91,6 +95,11 @@ class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
     }
 
     private fun getRepliesFromServer(post: BeaconPost) {
+        if (progressBar.visibility == View.VISIBLE) {
+            return
+        }
+        progressBar.visibility = View.VISIBLE
+
         val requestQueue = Volley.newRequestQueue(context)
         val url = "$BACKEND_IP/getReplies"
 
@@ -102,11 +111,12 @@ class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
             Method.POST, url,
             { response ->
                 try {
+                    progressBar.visibility = View.INVISIBLE
+
                     // Parse the response string into a list of BeaconPost objects
                     val replies = Json.decodeFromString(
                         ListSerializer(BeaconReply.serializer()),
-                        response
-                    )
+                        response)
 
                     if (replies.isEmpty()) {
                         Toast.makeText(context, "No replies.", Toast.LENGTH_SHORT).show()
@@ -124,6 +134,7 @@ class PostsAdapter(context: Context, private var posts: List<BeaconPost>):
                 }
             },
             { error ->
+                progressBar.visibility = View.INVISIBLE
                 Toast.makeText(context, "Failed to retrieve replies from server.", Toast.LENGTH_SHORT).show()
                 Log.e("Error", error.toString())
             }

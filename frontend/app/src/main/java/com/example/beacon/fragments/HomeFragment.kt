@@ -1,5 +1,6 @@
 package com.example.beacon.fragments
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.transition.Visibility
 import com.android.volley.toolbox.StringRequest
 import com.example.beacon.adapters.PostsAdapter
 import com.android.volley.toolbox.Volley
@@ -34,6 +37,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var postsAdapter: PostsAdapter
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,23 +47,26 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        postsAdapter = PostsAdapter(requireActivity(), mutableListOf())
+        progressBar = root.findViewById(R.id.progressBar)
+
+        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar)
         val postListView = root.findViewById<ListView>(R.id.postsListView)
         postListView.adapter = postsAdapter
 
+
+
         val getPostsButton = root.findViewById<Button>(R.id.getPostsButton)
         getPostsButton.setOnClickListener {
-            getPostsFromServer()
-        }
-
-        val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
-        userViewModel.location.observe(requireActivity()) {
             getPostsFromServer()
         }
         return root
     }
 
     private fun getPostsFromServer() {
+        if (progressBar.visibility == View.VISIBLE) {
+            return
+        }
+
         val requestQueue = Volley.newRequestQueue(requireActivity())
         val url = "$BACKEND_IP/get"
 
@@ -73,6 +80,8 @@ class HomeFragment : Fragment() {
             return
         }
 
+        progressBar.visibility = View.VISIBLE
+
         // Creating the JSON body with out current latitude and longitude
         val params = JSONObject()
         params.put("latitude", currentLocation.latitude)
@@ -83,6 +92,7 @@ class HomeFragment : Fragment() {
             Method.POST, url,
             { response ->
                 try {
+                    progressBar.visibility = View.INVISIBLE
                     // Parse the response string into a list of BeaconPost objects
                     val posts = Json.decodeFromString(
                         ListSerializer(BeaconPost.serializer()),
@@ -102,6 +112,7 @@ class HomeFragment : Fragment() {
                 }
             },
             { error ->
+                progressBar.visibility = View.INVISIBLE
                 Toast.makeText(context, "Failed to retrieve posts from server.", Toast.LENGTH_SHORT).show()
                 Log.e("Error", error.toString())
             }
