@@ -43,7 +43,6 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-
         postsAdapter = PostsAdapter(requireActivity(), mutableListOf())
         val postListView = root.findViewById<ListView>(R.id.postsListView)
         postListView.adapter = postsAdapter
@@ -53,6 +52,10 @@ class HomeFragment : Fragment() {
             getPostsFromServer()
         }
 
+        val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+        userViewModel.location.observe(requireActivity()) {
+            getPostsFromServer()
+        }
         return root
     }
 
