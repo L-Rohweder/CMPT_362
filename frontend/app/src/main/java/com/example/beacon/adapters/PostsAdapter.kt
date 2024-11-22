@@ -134,6 +134,7 @@ class PostsAdapter(
                 }
             },
             { error ->
+                progressBar.visibility = View.INVISIBLE
                 Toast.makeText(context, "Failed to retrieve replies from server.", Toast.LENGTH_SHORT).show()
                 Log.e("Error", error.toString())
             }

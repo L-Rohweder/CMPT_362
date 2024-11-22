@@ -92,6 +92,7 @@ class HomeFragment : Fragment() {
             Method.POST, url,
             { response ->
                 try {
+                    progressBar.visibility = View.INVISIBLE
                     // Parse the response string into a list of BeaconPost objects
                     val posts = Json.decodeFromString(
                         ListSerializer(BeaconPost.serializer()),
@@ -103,7 +104,7 @@ class HomeFragment : Fragment() {
                     } else {
                         Toast.makeText(requireContext(), "Posts retrieved successfully!", Toast.LENGTH_SHORT).show()
                     }
-                    progressBar.visibility = View.INVISIBLE
+
                     postsAdapter.updatePosts(posts)
                 } catch (e: Exception) {
                     Log.e("Error", "Parsing posts failed", e)
@@ -111,6 +112,7 @@ class HomeFragment : Fragment() {
                 }
             },
             { error ->
+                progressBar.visibility = View.INVISIBLE
                 Toast.makeText(context, "Failed to retrieve posts from server.", Toast.LENGTH_SHORT).show()
                 Log.e("Error", error.toString())
             }
