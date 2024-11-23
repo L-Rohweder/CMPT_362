@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "134175536451",
+    "project_id": "cmpt-362-89534",
+    "storage_bucket": "cmpt-362-89534.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:134175536451:android:b39d3a40fb0c4ead8fabf6",
+        "android_client_info": {
+          "package_name": "com.example.beacon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCY7eGB3pG8EZLPdNcTaJJDcBaGjIFnepE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
