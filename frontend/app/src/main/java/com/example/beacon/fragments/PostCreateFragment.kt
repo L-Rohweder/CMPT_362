@@ -38,6 +38,10 @@ import com.google.firebase.storage.storage
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class PostCreateFragment : Fragment() {
 
@@ -72,6 +76,7 @@ class PostCreateFragment : Fragment() {
                 val bitmap: Bitmap = imageHandler.getBitmap(requireContext(), imageHandler.getTempImgUri())
                 image.setImageBitmap(bitmap)
                 containsImage = true
+                image.visibility = View.VISIBLE
 
             }
 
@@ -85,6 +90,7 @@ class PostCreateFragment : Fragment() {
                 imageUri?.let {
                     val bitmap = MediaStore.Images.Media.getBitmap(requireContext().contentResolver, it)
                     image.setImageBitmap(bitmap)
+                    image.visibility = View.VISIBLE
 
                 }
             }
@@ -113,7 +119,8 @@ class PostCreateFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please enter both username and content.", Toast.LENGTH_SHORT).show()
                 return
         }
-
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
 
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
 
@@ -125,7 +132,7 @@ class PostCreateFragment : Fragment() {
                     createFirebaseImage { imageLink->
                         if(imageLink != null){
                             Log.d("publishPost", "Failed to get download URL")
-                            val post = BeaconPost(username, content, location.latitude, location.longitude, imageLink)
+                            val post = BeaconPost(username, content, location.latitude, location.longitude, imageLink, -1, dateFormat.format(Date()))
                             postToServer(post)
                         }
                         else{
@@ -135,7 +142,7 @@ class PostCreateFragment : Fragment() {
                 }
                 else{
                     Log.d("publishPost", "no image")
-                    val post = BeaconPost(username, content, location.latitude, location.longitude, "")
+                    val post = BeaconPost(username, content, location.latitude, location.longitude, "", -1, dateFormat.format(Date()))
                     postToServer(post)
                 }
                 userViewModel.requestedLocation.value = false
