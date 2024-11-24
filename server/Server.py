@@ -1,9 +1,11 @@
 import sqlite3
 from utils.DaemonThread import DaemonThread
-from components.sendPosts.sendPosts import sendPosts, sendAllPosts
-from components.storePost.storePost import storePost
-from components.storeReply.storeReply import storeReply
-from components.sendReplies.sendReplies import sendReplies
+from components.send.sendPosts import sendPosts, sendAllPosts
+from components.store.storePost import storePost
+from components.store.storeUser import storeUser
+from components.send.sendUsers import sendUser
+from components.storeReply import storeReply
+from components.sendReplies import sendReplies
 import utils.Response as Response
 import configparser
 import socket
@@ -32,7 +34,7 @@ class Server:
                 connection, client_address = self.server_socket.accept()
                 DaemonThread(target = self.processConnection, args = (connection, client_address))
             except Exception as e:
-                print("Connection Failed with error:" + e)
+                print("Connection Failed with error:" + str(e))
     
     def processConnection(self, connection, client_address):
         print("Connection made with"+str(client_address))
@@ -48,22 +50,37 @@ class Server:
             print("json processing failed", e)
     
     def passToComponent(self, endpoint, jsonfile, connection):
-        match endpoint:
-            case 'get':
-                sendPosts(jsonfile, connection, self.db_connection)
-            case 'post':
-                storePost(jsonfile, self.db_connection)
-                connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
-                connection.close()
-            case "reply":
-                storeReply(jsonfile, self.db_connection)
-                connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
-                connection.close()
-            case "getReplies":
-                sendReplies(jsonfile, connection, self.db_connection)
-            case 'getAll':
-                sendAllPosts(connection, self.db_connection)
-
+        try:
+            match endpoint:
+                case 'get':
+                    sendPosts(jsonfile, connection, self.db_connection)
+                case 'post':
+                    storePost(jsonfile, self.db_connection)
+                    connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
+                case "reply":
+                    storeReply(jsonfile, self.db_connection)
+                    connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
+                case "getReplies":
+                    sendReplies(jsonfile, connection, self.db_connection)
+                case 'getAll':
+                    sendAllPosts(connection, self.db_connection)
+                case 'postUser':
+                    print(f"Processing registration request for user: {jsonfile.get('username')}")
+                    success = storeUser(jsonfile, self.db_connection)
+                    if success:
+                        connection.sendall(Response.OKBODY(json.dumps({"message": "Registration successful"})).encode('utf-8'))
+                    else:
+                        connection.sendall(Response.ERROR("Registration failed").encode('utf-8'))
+                case 'getUser':
+                    print(f"Processing login request for user: {jsonfile.get('username')}")
+                    sendUser(jsonfile, connection, self.db_connection)
+                case _:
+                    connection.sendall(Response.ERROR("Invalid endpoint").encode('utf-8'))
+        except Exception as e:
+            print(f"Error in passToComponent: {e}")
+            connection.sendall(Response.ERROR("Server error").encode('utf-8'))
+        finally:
+            connection.close()
 
     def stop(self):
         self.db_connection.close()

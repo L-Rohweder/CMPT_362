@@ -8,11 +8,11 @@ def sendPosts(jsonFile, connection, dbConnection):
     print("send posts in range of:", jsonFile)
     config = configparser.ConfigParser()
     config.read(os.path.join(os.path.dirname(__file__),'../../config.ini'))
-    posts_range_km = jsonFile["range"]#int(config.get("General", "posts_range"))
+    posts_range_km = jsonFile.get("range", int(config.get("General", "posts_range")))
     latitude = jsonFile["latitude"]
     longitude = jsonFile["longitude"]
     lowLat, highLat = getLatRange(latitude, posts_range_km)
-    lowLong, highLong = getLongRange(longitude,latitude, posts_range_km)
+    lowLong, highLong = getLongRange(longitude, latitude, posts_range_km)
     postlist = dbModule.getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection)
     sendPostList(connection, postlist)
 
@@ -30,13 +30,15 @@ def postListListToPostObjectList(postlist):
     for post in postlist:
         try:
             postObj = {
-                "id":post[0],
-                "name": post[1],
-                "content": post[2],
-                "latitude": post[3],
-                "longitude": post[4],
-                "imageLink": post[5],
-                "datetime": post[6]
+                "name": post[0],
+                "content": post[1],
+                "latitude": post[2],
+                "longitude": post[3],
+                "imageLink": post[4],
+                "userID": post[5],
+                "id": post[6],
+                "username": post[7],
+                "datetime": post[8]
             }
             postObjList.append(postObj)
         except IndexError as e:

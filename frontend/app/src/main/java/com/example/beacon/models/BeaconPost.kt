@@ -8,11 +8,13 @@ data class BeaconPost(
     val content: String,
     val latitude: Double,
     val longitude: Double,
-    val imageLink: String,
+    val imageLink: String = "",
+    val userID: Int,
     val id: Int = -1,
-    val datetime: String = "",
-    ) {
+    val username: String,
+    val datetime: String = ""
+) {
     fun getFormattedPosition(): String {
-        return "$latitude $latitude"
+        return "$latitude $longitude"
     }
 }
