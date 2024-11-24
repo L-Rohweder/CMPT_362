@@ -12,7 +12,9 @@
         android:id="@+id/postImageView"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        tools:src="@tools:sample/avatars" />
+        tools:src="@tools:sample/avatars"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -36,11 +38,13 @@
     <EditText
         android:id="@+id/contentEditText"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="150dp"
         android:layout_marginBottom="10dp"
         android:autofillHints="Content of post."
         android:hint="@string/content_of_post"
-        android:inputType="textLongMessage" />
+        android:inputType="textMultiLine"
+        android:gravity="start|top"
+        android:scrollbars="vertical"/>
 
     <Button
         android:id="@+id/postAddImage"
