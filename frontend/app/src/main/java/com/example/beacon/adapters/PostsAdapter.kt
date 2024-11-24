@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -76,6 +77,49 @@ class PostsAdapter(
         }
         else{
             postImageView.visibility = View.GONE
+        }
+
+        val likeButton = listWidgetView.findViewById<Button>(R.id.like)
+        var likes = 0
+        var isLiked = false
+        val dislikeButton = listWidgetView.findViewById<Button>(R.id.dislike)
+        var dislikes = 0
+        var isDisliked = false
+
+        likeButton.setOnClickListener {
+            if(!isLiked) {
+                if(isDisliked){
+                    dislikes -= 1
+                    isDisliked=false
+                    dislikeButton.text = "Dislike(${dislikes})"
+                }
+                likes += 1
+                isLiked=true
+            }
+            else{
+                likes -= 1
+                isLiked=false
+            }
+            likeButton.text = "Like(${likes})"
+        }
+
+
+
+        dislikeButton.setOnClickListener {
+            if(!isDisliked) {
+                if(isLiked){
+                    likes -= 1
+                    isLiked=false
+                    likeButton.text = "Like(${likes})"
+                }
+                dislikes += 1
+                isDisliked=true
+            }
+            else{
+                dislikes -= 1
+                isDisliked=false
+            }
+            dislikeButton.text = "Dislike(${dislikes})"
         }
 
         listWidgetView.setOnClickListener {
