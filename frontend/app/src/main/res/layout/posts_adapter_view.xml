@@ -45,6 +45,15 @@
             android:textSize="14sp"
             android:textColor="#000000" />
 
+        <ImageView
+            android:id="@+id/postImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/position"
             android:layout_width="wrap_content"
@@ -62,13 +71,13 @@
                 android:id="@+id/dislike"
                 android:layout_width="194dp"
                 android:layout_height="wrap_content"
-                android:text="Dislike" />
+                android:text="Dislike(0)" />
 
             <Button
                 android:id="@+id/like"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Like" />
+                android:text="Like(0)" />
         </LinearLayout>
 
         <TextView
