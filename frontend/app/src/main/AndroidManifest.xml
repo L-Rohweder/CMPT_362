@@ -22,15 +22,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Beacon"
         android:usesCleartextTraffic="true">
+        
         <activity
-            android:name=".activities.StartupActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.StartupActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.RepliesActivity"
             android:exported="false" />
@@ -39,6 +43,12 @@
             android:exported="false">
         </activity>
         <activity android:name=".activities.ProfileActivity" />
+
+
+        <activity
+            android:name=".activities.SignupActivity"
+            android:exported="false" />
+
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -52,9 +62,9 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
+            android:value="@string/maps_api_key" />
 
-        <service android:name=".services.LocationService"/>
+<!--        <service android:name=".services.LocationService"/>-->
     </application>
 
 </manifest>

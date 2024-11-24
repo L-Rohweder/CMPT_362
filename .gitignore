@@ -1,6 +1,5 @@
-.gradle
-__pycache__
-posts.db
+frontend/.gradle
+frontend/app/.gradle
 
 # IDE files and folders (applies to all .idea folders)
 .idea/
@@ -13,3 +12,24 @@ frontend/app/build/
 
 #Ignore all local properties in any folder
 **/local.properties
+
+# Database file
+server/database/beacon.db
+
+# Python cache files - more specific patterns first
+server/components/send/__pycache__/
+server/components/store/__pycache__/
+server/database/__pycache__/
+server/utils/__pycache__/
+server/__pycache__/
+
+# Catch any other Python cache files we might have missed
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Add these lines
+frontend/app/src/main/res/values/secrets.xml
+**/secrets.xml
+
