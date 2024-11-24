@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -28,6 +29,8 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+import com.bumptech.glide.Glide
+import java.util.Date
 
 class PostsAdapter(
     context: Context,
@@ -65,6 +68,16 @@ class PostsAdapter(
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
         datetimeTextView.text = formatDateTime(post.datetime)
 
+        val postImageView = listWidgetView.findViewById<ImageView>(R.id.postImage)
+
+        if(!post.imageLink.isNullOrEmpty()){
+            postImageView.visibility = View.VISIBLE
+            Glide.with(context).load(post.imageLink).into(postImageView)
+        }
+        else{
+            postImageView.visibility = View.GONE
+        }
+
         listWidgetView.setOnClickListener {
             getRepliesFromServer(post)
         }
@@ -82,6 +95,16 @@ class PostsAdapter(
             // Assume the datetime from the server is in UTC
             val originalFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             originalFormat.timeZone = TimeZone.getTimeZone("UTC")
+
+            //this is for recent posts
+            val postDate = originalFormat.parse(datetime)
+            val currentTime = Date()
+
+            val milisSincePost = currentTime.time-postDate.time
+            val hoursSincePost = milisSincePost/(3600000)
+            if(hoursSincePost <24){
+                return "${hoursSincePost} hours ago"
+            }
 
             val targetFormat = SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault())
             targetFormat.timeZone = TimeZone.getDefault() // Device's local timezone
