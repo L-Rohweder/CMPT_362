@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,8 +32,12 @@ import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.ImageHandler
 import com.example.beacon.view_models.UserViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 
 class PostCreateFragment : Fragment() {
 
@@ -41,6 +46,8 @@ class PostCreateFragment : Fragment() {
     private lateinit var  image: ImageView
     private lateinit var cameraResult: ActivityResultLauncher<Intent>
     private lateinit var galleryResult: ActivityResultLauncher<Intent>
+    private lateinit var firebaseStorage: FirebaseStorage
+    private var containsImage = false
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -51,7 +58,7 @@ class PostCreateFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
+        firebaseStorage = Firebase.storage
         _binding = FragmentPostCreateBinding.inflate(inflater, container, false)
         imageHandler = ImageHandler(requireContext())
         val root: View = binding.root
@@ -64,6 +71,8 @@ class PostCreateFragment : Fragment() {
             if(result.resultCode == Activity.RESULT_OK){
                 val bitmap: Bitmap = imageHandler.getBitmap(requireContext(), imageHandler.getTempImgUri())
                 image.setImageBitmap(bitmap)
+                containsImage = true
+
             }
 
         }
@@ -98,12 +107,13 @@ class PostCreateFragment : Fragment() {
     private fun publishPost() {
         val username = binding.usernameEditText.text.toString()
         val content = binding.contentEditText.text.toString()
-
+        Log.d("publishPost", "Called")
         // Validate inputs
         if (username.isBlank() || content.isBlank()) {
                 Toast.makeText(requireContext(), "Please enter both username and content.", Toast.LENGTH_SHORT).show()
                 return
         }
+
 
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
 
@@ -111,11 +121,50 @@ class PostCreateFragment : Fragment() {
 
         userViewModel.location.observe(viewLifecycleOwner) { location ->
             if (userViewModel.requestedLocation.value == true) {
-                val post = BeaconPost(username, content, location.latitude, location.longitude, "")
-                postToServer(post)
+                if(containsImage){
+                    createFirebaseImage { imageLink->
+                        if(imageLink != null){
+                            Log.d("publishPost", "Failed to get download URL")
+                            val post = BeaconPost(username, content, location.latitude, location.longitude, imageLink)
+                            postToServer(post)
+                        }
+                        else{
+                            Toast.makeText(requireContext(), "Image upload failed. Try again.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                else{
+                    Log.d("publishPost", "no image")
+                    val post = BeaconPost(username, content, location.latitude, location.longitude, "")
+                    postToServer(post)
+                }
                 userViewModel.requestedLocation.value = false
             }
         }
+    }
+
+    private fun createFirebaseImage(onComplete: (String?) -> Unit){
+        //might need to change this later. If two users create a post in the same milisecond we will run into issues
+        val storageReference = firebaseStorage.reference.child("images/${System.currentTimeMillis()}.jpg")
+
+        val drawable = image.drawable
+        if(drawable is BitmapDrawable){
+            val bitmap = drawable.bitmap
+            val byteArrOutputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrOutputStream)
+            val data = byteArrOutputStream.toByteArray()
+
+            val uploadTask = storageReference.putBytes(data)
+            uploadTask.addOnSuccessListener {
+                storageReference.downloadUrl.addOnSuccessListener { uri ->
+                    onComplete(uri.toString())
+                    Log.d("PostCreateFragment", "Image uploaded successfully: ${uri.toString()}")
+                }.addOnFailureListener { onComplete(null)
+                    Log.e("PostCreateFragment", "Failed to get download URL")}
+            }.addOnFailureListener { onComplete(null)
+                Log.e("PostCreateFragment", "Failed to get download URL")}
+        }
+        else{onComplete(null)}
     }
 
     private fun postToServer(post: BeaconPost) {
