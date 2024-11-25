@@ -1,6 +1,7 @@
 package com.example.beacon.activities
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -17,6 +18,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.beacon.R
 import com.example.beacon.databinding.ActivityTabbedBinding
+import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.EXTRA_LOCATION
 import com.example.beacon.view_models.UserViewModel
 import com.google.android.gms.maps.model.LatLng
@@ -28,11 +30,15 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         val location = intent.getParcelableExtra(EXTRA_LOCATION, LatLng::class.java)
         if (location != null) {
-            val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+
             userViewModel.location.value = location
         }
+
+        val sharedPrefs = getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
+        userViewModel.range.value = sharedPrefs.getFloat(Constants.SP_RANGE_KM, 5.0f)
 
         binding = ActivityTabbedBinding.inflate(layoutInflater)
         setContentView(binding.root)

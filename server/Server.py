@@ -1,11 +1,11 @@
 import sqlite3
 from utils.DaemonThread import DaemonThread
 from components.send.sendPosts import sendPosts, sendAllPosts
+from components.send.sendUsers import sendUser
+from components.send.sendReplies import sendReplies
 from components.store.storePost import storePost
 from components.store.storeUser import storeUser
-from components.send.sendUsers import sendUser
-from components.storeReply import storeReply
-from components.sendReplies import sendReplies
+from components.store.storeReply import storeReply
 import utils.Response as Response
 import configparser
 import socket

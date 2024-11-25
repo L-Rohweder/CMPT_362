@@ -30,13 +30,13 @@ def postListListToPostObjectList(postlist):
     for post in postlist:
         try:
             postObj = {
-                "name": post[0],
-                "content": post[1],
-                "latitude": post[2],
-                "longitude": post[3],
-                "imageLink": post[4],
-                "userID": post[5],
-                "id": post[6],
+                "id": post[0],
+                "userID": post[1],
+                "name": post[2],
+                "content": post[3],
+                "latitude": post[4],
+                "longitude": post[5],
+                "imageLink": post[6],
                 "username": post[7],
                 "datetime": post[8]
             }
