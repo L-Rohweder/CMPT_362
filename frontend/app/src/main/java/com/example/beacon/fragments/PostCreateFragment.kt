@@ -159,7 +159,7 @@ class PostCreateFragment : Fragment() {
                                 content = content,
                                 latitude = location.latitude,
                                 longitude = location.longitude,
-                                imageLink = "",
+                                imageLink = imageLink,
                                 userID = userId,
                                 id = -1,
                                 username = username,

@@ -22,7 +22,7 @@ def getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection):
     cursor = dbConnection.cursor()
     try:
         cursor.execute("""
-            SELECT name, content, latitude, longitude, image_link, user_id, username, created_at 
+            SELECT *
             FROM posts 
             WHERE latitude > ? AND latitude < ?
             AND longitude > ? AND longitude < ?

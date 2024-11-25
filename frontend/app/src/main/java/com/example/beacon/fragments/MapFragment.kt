@@ -61,7 +61,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun configureSlider() {
         val sharedPrefs = requireActivity().getSharedPreferences(
             Constants.SP_KEY, Context.MODE_PRIVATE)
-        val initialRange = sharedPrefs.getFloat(Constants.SP_RANGE_KM, 1.0f)
+        val initialRange = sharedPrefs.getFloat(Constants.SP_RANGE_KM, 5.0f)
         _slider.value = rangeToSliderValue(initialRange)
         updateUIRange(_slider.value)
 
