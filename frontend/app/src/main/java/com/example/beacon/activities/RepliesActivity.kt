@@ -66,7 +66,9 @@ class RepliesActivity : AppCompatActivity() {
         }
 
         val usernameTextView = findViewById<TextView>(R.id.username)
-        usernameTextView.text = post.name
+        if (!post.isAnon) {
+            usernameTextView.text = post.name
+        }
         val contentTextView = findViewById<TextView>(R.id.content)
         contentTextView.text = post.content
         val positionTextView = findViewById<TextView>(R.id.position)

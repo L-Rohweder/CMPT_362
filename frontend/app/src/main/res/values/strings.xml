@@ -19,4 +19,6 @@
     <string name="_100">100%</string>
     <string name="settingsProfileText"><b>User Profile</b>\nName, Email, etc.</string>
     <string name="settingsUnitsText"><b>Units Preference</b>\nSelect Units</string>
+    <string name="post_as_anonymous">Post as anonymous</string>
+    <string name="anonymous">Anonymous</string>
 </resources>

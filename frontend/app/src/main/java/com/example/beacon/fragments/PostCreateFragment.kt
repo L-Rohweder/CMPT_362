@@ -33,6 +33,7 @@ import com.android.volley.toolbox.Volley
 import com.example.beacon.R
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
+import com.example.beacon.models.BeaconReply
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.ImageHandler
 import com.example.beacon.view_models.UserViewModel
@@ -127,6 +128,7 @@ class PostCreateFragment : Fragment() {
     private fun publishPost() {
         val context = context ?: return
         val content = binding.contentEditText.text.toString()
+        val isAnon = binding.anonSwitch.isChecked
 
         // Get user info from SharedPreferences
         val prefs = context.getSharedPreferences("AUTH", Context.MODE_PRIVATE)
@@ -163,7 +165,8 @@ class PostCreateFragment : Fragment() {
                                 userID = userId,
                                 id = -1,
                                 username = username,
-                                datetime = dateFormat.format(Date())
+                                datetime = dateFormat.format(Date()),
+                                isAnon = isAnon
                             )
                             postToServer(post)
                             userViewModel.requestedLocation.value = false
@@ -182,7 +185,8 @@ class PostCreateFragment : Fragment() {
                         userID = userId,
                         id = -1,
                         username = username,
-                        datetime = dateFormat.format(Date())
+                        datetime = dateFormat.format(Date()),
+                        isAnon = isAnon
                     )
                     postToServer(post)
                     userViewModel.requestedLocation.value = false
@@ -221,17 +225,8 @@ class PostCreateFragment : Fragment() {
         if (!isAdded) return
 
         val url = "$BACKEND_IP/post"
-        val body = JSONObject().apply {
-            put("name", post.name)
-            put("content", post.content)
-            put("latitude", post.latitude)
-            put("longitude", post.longitude)
-            put("imageLink", post.imageLink)
-            put("userID", post.userID)
-            put("id", post.id)
-            put("username", post.username)
-            put("datetime", post.datetime)
-        }
+        val json = Json { encodeDefaults = true}
+        val body = JSONObject(json.encodeToString(BeaconPost.serializer(), post))
 
         val request = JsonObjectRequest(
             Request.Method.POST, url, body,

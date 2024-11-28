@@ -12,7 +12,8 @@ data class BeaconPost(
     val userID: Int,
     val id: Int = -1,
     val username: String,
-    val datetime: String = ""
+    val datetime: String = "",
+    val isAnon: Boolean = false
 ) {
     fun getFormattedPosition(): String {
         return "$latitude $longitude"

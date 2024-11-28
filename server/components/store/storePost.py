@@ -7,6 +7,7 @@ def storePost(jsonFile, dbConnection):
     imageLink = jsonFile.get("imageLink", "")
     userID = jsonFile["userID"]
     username = jsonFile["username"]
+    isAnon = jsonFile["isAnon"]
     print("saving:")
     print("""   
             name:      {}
@@ -16,6 +17,7 @@ def storePost(jsonFile, dbConnection):
             imageLink: {}
             userID:    {}
             username:  {}
-          """.format(name, content, latitude, longitude, imageLink, userID, username))
+            isAnon: {}
+          """.format(name, content, latitude, longitude, imageLink, userID, username, isAnon))
 
-    dbModule.savePost(name, content, float(latitude), float(longitude), imageLink, userID, username, dbConnection)
+    dbModule.savePost(name, content, float(latitude), float(longitude), imageLink, userID, username, isAnon, dbConnection)

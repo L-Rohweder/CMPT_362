@@ -34,20 +34,16 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
     image_link character varying(256),
     username character varying(256),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_anon INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );""")
 
 cursor.execute("""CREATE TABLE IF NOT EXISTS replies (
     id integer primary key,
-    
     postId integer,
-
     name character varying(256),
-    
     content character varying(256),
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-               
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
     FOREIGN KEY(postId) REFERENCES posts(id)
 );""")
 
