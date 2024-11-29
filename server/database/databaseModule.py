@@ -8,12 +8,12 @@ def savePost(name, content, latitude, longitude, imageLink, userID, username, is
     except Exception as e:
         print("error saving in databaseModule: ", e)
 
-def saveReply(postId, name, content, dbConnection):
+def saveReply(postId, name, content, userId, isAnon, dbConnection):
     cursor = dbConnection.cursor()
     try:
         cursor.execute('''
-            INSERT INTO replies (postId, name, content) VALUES (?, ?, ?)
-        ''', (postId, name, content))
+            INSERT INTO replies (post_id, name, content, user_id, is_anon) VALUES (?, ?, ?, ?, ?)
+        ''', (postId, name, content, userId, isAnon))
         dbConnection.commit()
     except Exception as e:
         print("error saving in databaseModule: ", e)
@@ -35,7 +35,7 @@ def getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection):
 def getRepliesFromPost(postId, dbConnection):
     cursor = dbConnection.cursor()
     cursor.execute("""SELECT * FROM replies 
-                   WHERE postId = ?""",
+                   WHERE post_id = ?""",
                    (postId,))
     return cursor.fetchall()
 

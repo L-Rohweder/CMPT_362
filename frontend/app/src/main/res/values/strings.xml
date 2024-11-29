@@ -21,4 +21,6 @@
     <string name="settingsUnitsText"><b>Units Preference</b>\nSelect Units</string>
     <string name="post_as_anonymous">Post as anonymous</string>
     <string name="anonymous">Anonymous</string>
+    <string name="content_of_reply">Content of reply.</string>
+    <string name="add_image">Add Image</string>
 </resources>

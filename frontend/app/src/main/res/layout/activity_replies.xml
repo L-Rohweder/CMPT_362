@@ -5,35 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="10dp"
     tools:context=".activities.RepliesActivity"
     android:orientation="vertical">
 
     <include
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         layout="@layout/posts_adapter_view"/>
-
-    <LinearLayout
-        android:layout_margin="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="5"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/contentEditText"
-            android:hint="reply text here"
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:layout_marginEnd="10dp"
-            android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/postButton"
-            android:text="post"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
 
     <ListView
         android:id="@+id/repliesListView"
@@ -43,5 +22,42 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="8dp"
         android:padding="8dp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="1dp"
+        android:layout_marginBottom="10dp"
+        android:focusable="true"
+        android:clickable="true"
+        app:strokeColor="#DDDDDD">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="vertical">
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/anonSwitch"
+                android:text="@string/post_as_anonymous"
+                android:layout_marginStart="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <EditText
+                android:id="@+id/contentEditText"
+                android:hint="@string/content_of_reply"
+                android:layout_width="match_parent"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:id="@+id/postButton"
+                android:text="@string/publish"
+                android:layout_gravity="end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

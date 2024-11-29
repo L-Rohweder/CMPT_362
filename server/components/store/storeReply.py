@@ -3,11 +3,15 @@ def storeReply(jsonFile, dbConnection):
     postId = jsonFile["postId"]
     name = jsonFile["name"]
     content = jsonFile["content"]
+    userId = jsonFile["userId"]
+    isAnon = jsonFile["isAnon"]
     print("saving:")
     print("""
             postId:    {}
             name:      {}
             content:   {}
-          """.format(postId, name, content))
+            userId:   {}
+            isAnon:   {}
+          """.format(postId, name, content, userId, isAnon))
 
-    dbModule.saveReply(postId, name, content, dbConnection)
+    dbModule.saveReply(postId, name, content, userId, isAnon, dbConnection)
