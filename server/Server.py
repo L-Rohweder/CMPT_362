@@ -45,6 +45,7 @@ class Server:
         try:
             print(endpoint)
             jsonfile = json.loads(body)
+            print(jsonfile)
             self.passToComponent(endpoint, jsonfile, connection)
         except json.JSONDecodeError as e:
             print("json processing failed", e)

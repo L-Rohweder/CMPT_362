@@ -23,9 +23,11 @@ def replyListToReplyObjectList(replyList):
             postObj = {
                 "id":reply[0],
                 "postId": reply[1],
-                "name": reply[2],
-                "content": reply[3],
-                "datetime": reply[4]
+                "userId": reply[2],
+                "name": reply[3],
+                "content": reply[4],
+                "datetime": reply[5],
+                "isAnon": bool(reply[6]),
             }
             replyObjList.append(postObj)
         except IndexError as e:
