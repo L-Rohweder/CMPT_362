@@ -7,10 +7,8 @@
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:strokeWidth="1dp"
     android:focusable="true"
-    android:clickable="true"
-    app:strokeColor="#DDDDDD">
+    android:clickable="true">
 
     <LinearLayout
         android:id="@+id/layout"
@@ -22,12 +20,12 @@
         <!-- Username -->
         <TextView
             android:id="@+id/username"
-            android:text="@string/anonymous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#1DA1F2" />
+            android:text="@string/anonymous"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <!-- Datetime -->
         <TextView
@@ -35,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#888888"
+            android:textColor="@color/primary_accent"
             android:layout_marginBottom="8dp" />
 
         <!-- Content -->
@@ -43,8 +41,8 @@
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#000000" />
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/postImage"
@@ -60,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#888888"
+            android:textColor="@color/primary_accent"
             android:layout_marginTop="8dp" />
 
         <LinearLayout
@@ -85,6 +83,7 @@
             android:id="@+id/report"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/primary_accent"
             android:text="Report?" />
 
     </LinearLayout>

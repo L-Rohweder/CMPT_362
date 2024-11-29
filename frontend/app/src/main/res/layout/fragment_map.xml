@@ -8,13 +8,6 @@
     android:weightSum="6"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/range"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display2" />
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
         android:layout_width="match_parent"

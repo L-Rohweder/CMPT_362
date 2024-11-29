@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Beacon" parent="Theme.MaterialComponents.DayNight.DarkActionBar" />
+    <style name="Theme.Beacon" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/secondary_accent</item>
+        <item name="colorPrimaryVariant">@color/primary_accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/primary_accent</item>
+        <item name="colorSecondaryVariant">@color/secondary_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <item name="android:windowBackground">@color/primary_bg</item>
+        <item name="colorOnBackground">@color/primary_accent</item>
+        <item name="colorSurface">@color/primary_bg</item>
+        <item name="colorOnSurface">@color/primary_accent</item>
+
+
+    </style>
 </resources>
