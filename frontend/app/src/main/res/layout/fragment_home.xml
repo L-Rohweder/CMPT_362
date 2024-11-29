@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF"
     tools:context=".fragments.HomeFragment">
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -21,9 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="Get Posts"
-        android:layout_gravity="center_horizontal"
-        android:backgroundTint="#1DA1F2"
-        android:textColor="#FFFFFF" />
+        android:layout_gravity="center_horizontal"/>
 
     <ListView
         android:id="@+id/postsListView"

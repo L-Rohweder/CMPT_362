@@ -4,11 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF"
     android:padding="16dp">
 
     <!-- Profile Section -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -24,25 +23,27 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Profile"
-                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:textSize="18sp"
-                android:layout_marginBottom="8dp"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/openProfileText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settingsProfileText"
-                android:padding="8dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true"/>
+                android:focusable="true"
+                android:padding="8dp"
+                android:text="@string/settingsProfileText"
+                android:textColor="@color/white" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Units Section -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -58,10 +59,11 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Units"
-                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:textSize="18sp"
-                android:layout_marginBottom="8dp"/>
+                android:textStyle="bold" />
 
             <RadioGroup
                 android:id="@+id/unitsRadioGroup"
@@ -84,10 +86,10 @@
                     android:padding="8dp"/>
             </RadioGroup>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Account Section -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
@@ -102,19 +104,19 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Account"
-                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:textSize="18sp"
-                android:layout_marginBottom="8dp"/>
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/logoutButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Log Out"
-                android:textColor="#FF0000"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

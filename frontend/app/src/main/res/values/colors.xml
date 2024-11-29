@@ -10,4 +10,9 @@
 
     <color name="range_fill">#6EFF6262</color>
     <color name="range_stroke">#A1FFB7B7</color>
+
+
+    <color name="primary_accent">#FFB7B7</color>
+    <color name="primary_bg">#240C0C</color>
+    <color name="secondary_accent">#FF6262</color>
 </resources>
