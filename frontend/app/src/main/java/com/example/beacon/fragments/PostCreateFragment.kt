@@ -4,24 +4,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.NoConnectionError
@@ -33,7 +28,7 @@ import com.android.volley.toolbox.Volley
 import com.example.beacon.R
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
-import com.example.beacon.models.BeaconReply
+import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.ImageHandler
 import com.example.beacon.view_models.UserViewModel
@@ -54,6 +49,7 @@ class PostCreateFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var imageHandler: ImageHandler
     private lateinit var image: ImageView
+    private lateinit var anonSwitch: SwitchCompat
     private lateinit var cameraResult: ActivityResultLauncher<Intent>
     private lateinit var galleryResult: ActivityResultLauncher<Intent>
     private var requestQueue: RequestQueue? = null
@@ -71,17 +67,25 @@ class PostCreateFragment : Fragment() {
         val context = requireContext()
         imageHandler = ImageHandler(context)
         requestQueue = Volley.newRequestQueue(context)
-
-        val root: View = binding.root
-        setupViews(root)
+        setupViews()
         setupImageHandlers()
-        return root
+        return binding.root
     }
 
-    private fun setupViews(root: View) {
-        val addImageButton = root.findViewById<Button>(R.id.postAddImage)
-        val publishPostButton = root.findViewById<Button>(R.id.publishPostButton)
-        image = root.findViewById(R.id.postImageView)
+    override fun onResume() {
+        super.onResume()
+        val prefs = requireActivity().getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
+        anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
+    }
+
+    private fun setupViews() {
+        val addImageButton = binding.postAddImage
+        val publishPostButton = binding.publishPostButton
+        image = binding.postImageView
+        anonSwitch = binding.anonSwitch
+
+        val prefs = requireActivity().getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
+        anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
 
         publishPostButton.setOnClickListener {
             publishPost()

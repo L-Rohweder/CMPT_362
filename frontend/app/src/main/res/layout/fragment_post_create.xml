@@ -18,18 +18,24 @@
         android:visibility="gone"/>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/postCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="15dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="8dp"
         app:cardElevation="4dp">
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/anonSwitch"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginHorizontal="20dp"
-            android:text="@string/post_as_anonymous"
-            android:textSize="20sp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/anonSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/post_as_anonymous"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <EditText

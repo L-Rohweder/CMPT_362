@@ -44,9 +44,12 @@ class RepliesAdapter(context: Context, private var replies: List<BeaconReply>):
 
         val reply = replies[position]
 
+        val usernameTextView = listWidgetView.findViewById<TextView>(R.id.username)
         if (!reply.isAnon) {
-            val usernameTextView = listWidgetView.findViewById<TextView>(R.id.username)
             usernameTextView.text = reply.name
+        }
+        else {
+            usernameTextView.text = context.getString(R.string.anonymous)
         }
 
         val contentTextView = listWidgetView.findViewById<TextView>(R.id.content)

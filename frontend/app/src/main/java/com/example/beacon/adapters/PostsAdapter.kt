@@ -56,9 +56,12 @@ class PostsAdapter(
 
         val post = posts[position]
 
+        val usernameTextView = listWidgetView.findViewById<TextView>(R.id.username)
         if (!post.isAnon) {
-            val usernameTextView = listWidgetView.findViewById<TextView>(R.id.username)
             usernameTextView.text = post.name
+        }
+        else {
+            usernameTextView.text = context.getString(R.string.anonymous)
         }
 
         val contentTextView = listWidgetView.findViewById<TextView>(R.id.content)

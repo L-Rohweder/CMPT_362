@@ -88,6 +88,28 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Post as anonymous Section -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/anonSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/default_as_anonymous"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- Account Section -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"

@@ -23,4 +23,5 @@
     <string name="anonymous">Anonymous</string>
     <string name="content_of_reply">Content of reply.</string>
     <string name="add_image">Add Image</string>
+    <string name="default_as_anonymous">Default as Anonymous</string>
 </resources>

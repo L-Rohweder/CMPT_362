@@ -26,23 +26,21 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
+        app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
-        android:layout_marginBottom="10dp"
-        android:focusable="true"
-        android:clickable="true">
-
+        android:layout_marginBottom="16dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:padding="16dp"
             android:orientation="vertical">
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/anonSwitch"
-                android:text="@string/post_as_anonymous"
-                android:layout_marginStart="5dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"
+                android:text="@string/post_as_anonymous"
+                android:textSize="18sp"
+                android:textStyle="bold" />
             <EditText
                 android:id="@+id/contentEditText"
                 android:hint="@string/content_of_reply"

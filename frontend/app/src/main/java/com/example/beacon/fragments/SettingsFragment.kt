@@ -10,12 +10,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.beacon.R
 import com.example.beacon.activities.LoginActivity
 import com.example.beacon.activities.ProfileActivity
 import com.example.beacon.databinding.FragmentSettingsBinding
 import com.example.beacon.utils.Constants
+import com.example.beacon.view_models.UserViewModel
 
 class SettingsFragment : Fragment() {
 
@@ -23,6 +26,7 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var profileButton: TextView
     private lateinit var unitsRadioGroup: RadioGroup
+    private lateinit var anonSwitch: SwitchCompat
     private lateinit var logoutButton: Button
     private lateinit var prefs: SharedPreferences
 
@@ -33,6 +37,7 @@ class SettingsFragment : Fragment() {
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
 
         unitsRadioGroup = root.findViewById(R.id.unitsRadioGroup)
         prefs = requireActivity().getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
@@ -41,6 +46,13 @@ class SettingsFragment : Fragment() {
         unitsRadioGroup.setOnCheckedChangeListener { radioGroup, id ->
             val checkedButton = root.findViewById<TextView>(id)
             prefs.edit().putString(Constants.SP_UNITS, checkedButton.text.toString()).apply()
+        }
+
+        // Setup default as anonymous check
+        anonSwitch = root.findViewById(R.id.anonSwitch)
+        anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
+        anonSwitch.setOnCheckedChangeListener { _, value ->
+            prefs.edit().putBoolean(Constants.SP_IS_ANON, value).apply()
         }
 
         // Setup profile button

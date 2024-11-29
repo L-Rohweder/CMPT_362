@@ -6,36 +6,29 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ListView
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
-import com.example.beacon.adapters.PostsAdapter
 import com.example.beacon.adapters.RepliesAdapter
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.models.BeaconReply
+import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
 class RepliesActivity : AppCompatActivity() {
     private lateinit var post: BeaconPost
     private lateinit var contentEditText: EditText
+    private lateinit var anonSwitch: SwitchCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +65,10 @@ class RepliesActivity : AppCompatActivity() {
             postReplyToServer()
         }
 
+        val prefs = getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
+        anonSwitch = findViewById(R.id.anonSwitch)
+        anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
+
         val usernameTextView = findViewById<TextView>(R.id.username)
         if (!post.isAnon) {
             usernameTextView.text = post.name
@@ -92,7 +89,7 @@ class RepliesActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("AUTH", Context.MODE_PRIVATE)
         val userId = prefs.getInt("USER_ID", -1)
         val username = prefs.getString("USERNAME", null)
-        val isAnon = findViewById<SwitchCompat>(R.id.anonSwitch).isChecked
+        val isAnon = anonSwitch.isChecked
 
         // Validate inputs and user auth
         if (contentEditText.text.isBlank()) {
