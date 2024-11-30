@@ -64,18 +64,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
 
             <Button
                 android:id="@+id/dislike"
-                android:layout_width="194dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
                 android:text="Dislike(0)" />
 
             <Button
                 android:id="@+id/like"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
                 android:text="Like(0)" />
         </LinearLayout>
 
@@ -84,7 +89,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_accent"
-            android:text="Report?" />
+            android:text="Report?"
+            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 

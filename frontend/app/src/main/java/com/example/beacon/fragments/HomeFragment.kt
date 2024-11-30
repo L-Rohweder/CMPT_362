@@ -1,16 +1,18 @@
 package com.example.beacon.fragments
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
@@ -26,13 +28,19 @@ import org.json.JSONObject
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
-
     private lateinit var postsAdapter: PostsAdapter
     private lateinit var progressBar: ProgressBar
+    private lateinit var requestQueue: RequestQueue
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateInterval = 60000L // 1 minute in milliseconds
+    
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            getPostsFromServer()
+            handler.postDelayed(this, updateInterval)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,18 +51,24 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         progressBar = root.findViewById(R.id.progressBar)
+        requestQueue = Volley.newRequestQueue(requireActivity())
 
         postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar)
         val postListView = root.findViewById<ListView>(R.id.postsListView)
         postListView.adapter = postsAdapter
 
+        // Start periodic updates
+        startPeriodicUpdates()
 
-
-        val getPostsButton = root.findViewById<Button>(R.id.getPostsButton)
-        getPostsButton.setOnClickListener {
-            getPostsFromServer()
-        }
         return root
+    }
+
+    private fun startPeriodicUpdates() {
+        handler.post(updateRunnable)
+    }
+
+    private fun stopPeriodicUpdates() {
+        handler.removeCallbacks(updateRunnable)
     }
 
     private fun getPostsFromServer() {
@@ -62,7 +76,6 @@ class HomeFragment : Fragment() {
             return
         }
 
-        val requestQueue = Volley.newRequestQueue(requireActivity())
         val url = "$BACKEND_IP/get"
 
         // Get user's current location
@@ -77,7 +90,7 @@ class HomeFragment : Fragment() {
 
         progressBar.visibility = View.VISIBLE
 
-        // Creating the JSON body with out current latitude and longitude
+        // Creating the JSON body with current latitude and longitude
         val params = JSONObject()
         params.put("latitude", currentLocation.latitude)
         params.put("longitude", currentLocation.longitude)
@@ -126,6 +139,8 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        stopPeriodicUpdates()
+        requestQueue.cancelAll(this)
         _binding = null
     }
 }

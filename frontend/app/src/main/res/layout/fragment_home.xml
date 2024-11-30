@@ -14,14 +14,6 @@
         android:visibility="invisible"
         />
 
-    <Button
-        android:id="@+id/getPostsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Get Posts"
-        android:layout_gravity="center_horizontal"/>
-
     <ListView
         android:id="@+id/postsListView"
         android:layout_width="match_parent"
