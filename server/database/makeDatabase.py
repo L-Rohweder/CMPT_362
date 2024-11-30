@@ -38,8 +38,7 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );""")
 
-# Drop and recreate replies table to fix schema
-cursor.execute("DROP TABLE IF EXISTS replies;")
+
 cursor.execute("""CREATE TABLE IF NOT EXISTS replies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     post_id INTEGER NOT NULL,
