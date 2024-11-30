@@ -38,6 +38,7 @@ class RepliesActivity : AppCompatActivity() {
     private lateinit var contentEditText: EditText
     private lateinit var anonSwitch: SwitchCompat
     private lateinit var repliesAdapter: RepliesAdapter
+    private lateinit var scrollLinearLayout: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,8 +65,7 @@ class RepliesActivity : AppCompatActivity() {
             replyListData
         )
 
-        val scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
-
+        scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
         repliesAdapter = RepliesAdapter(this, replies)
         for (i in 0..<repliesAdapter.count) {
             scrollLinearLayout.addView(repliesAdapter.getView(i, null, scrollLinearLayout))
@@ -141,7 +141,9 @@ class RepliesActivity : AppCompatActivity() {
             { _ ->
                 // Success
                 Toast.makeText(this, "Reply published successfully!", Toast.LENGTH_SHORT).show()
+                val pos = repliesAdapter.count
                 repliesAdapter.add(reply)
+                scrollLinearLayout.addView(repliesAdapter.getView(pos, null, scrollLinearLayout))
             },
             { error ->
                 // Failure

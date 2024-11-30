@@ -25,11 +25,13 @@ import com.android.volley.RequestQueue
 import com.android.volley.TimeoutError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.example.beacon.R
+import com.example.beacon.activities.RepliesActivity
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
+import com.example.beacon.utils.Constants.EXTRA_POST
+import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
 import com.example.beacon.utils.ImageHandler
 import com.example.beacon.view_models.UserViewModel
 import com.google.firebase.Firebase
@@ -240,7 +242,12 @@ class PostCreateFragment : Fragment() {
                         Toast.makeText(context, response.getString("error"), Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Post published successfully!", Toast.LENGTH_SHORT).show()
-                        binding.contentEditText.text.clear()
+                        clearViews()
+
+                        val intent = Intent(context, RepliesActivity::class.java)
+                        intent.putExtra(EXTRA_POST, Json.encodeToString(BeaconPost.serializer(), post))
+                        intent.putExtra(EXTRA_REPLY_LIST, "[]")
+                        startActivity(intent)
                     }
                 }
             },
@@ -266,6 +273,11 @@ class PostCreateFragment : Fragment() {
 
         request.tag = this
         requestQueue?.add(request)
+    }
+
+    private fun clearViews() {
+        binding.contentEditText.text.clear()
+        image.visibility = View.GONE
     }
 
     override fun onDestroyView() {
