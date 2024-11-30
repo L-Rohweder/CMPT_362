@@ -25,11 +25,13 @@ import com.example.beacon.utils.Conversion
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+import java.util.Date
 
 class RepliesActivity : AppCompatActivity() {
     private lateinit var post: BeaconPost
     private lateinit var contentEditText: EditText
     private lateinit var anonSwitch: SwitchCompat
+    private lateinit var repliesAdapter: RepliesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +57,7 @@ class RepliesActivity : AppCompatActivity() {
             ListSerializer(BeaconReply.serializer()),
             replyListData
         )
-        val repliesAdapter = RepliesAdapter(this, replies)
+        repliesAdapter = RepliesAdapter(this, replies)
         val repliesListView = findViewById<ListView>(R.id.repliesListView)
         repliesListView.adapter = repliesAdapter
 
@@ -119,7 +121,7 @@ class RepliesActivity : AppCompatActivity() {
             { _ ->
                 // Success
                 Toast.makeText(this, "Reply published successfully!", Toast.LENGTH_SHORT).show()
-                finish()
+                repliesAdapter.add(reply)
             },
             { error ->
                 // Failure

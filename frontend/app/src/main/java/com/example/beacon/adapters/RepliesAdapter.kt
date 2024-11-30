@@ -59,7 +59,12 @@ class RepliesAdapter(context: Context, private var replies: List<BeaconReply>):
 
         // Display formatted datetime
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = Conversion.formatDateTime(reply.datetime)
+        datetimeTextView.text = if (reply.datetime.isEmpty()) {
+            "Now"
+        }
+        else {
+            Conversion.formatDateTime(reply.datetime)
+        }
 
         val positionTextView = listWidgetView.findViewById<TextView>(R.id.position)
         positionTextView.visibility = View.GONE
