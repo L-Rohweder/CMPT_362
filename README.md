@@ -26,4 +26,8 @@ const val BACKEND_IP = "http://10.0.0.193:3333"
 ### Maps API
 In `frontend\local.properties` create the variable `MAPS_API_KEY` and set it to your Google Maps API key. 
 
+```
+MAPS_API_KEY=someapikeyhereperhaps
+```
+
 To generate a Google Maps key, refer to this page: https://developers.google.com/maps/documentation/android-sdk/get-api-key.
