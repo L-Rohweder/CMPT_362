@@ -21,14 +21,17 @@ import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
+import com.example.beacon.utils.Conversion
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+import java.util.Date
 
 class RepliesActivity : AppCompatActivity() {
     private lateinit var post: BeaconPost
     private lateinit var contentEditText: EditText
     private lateinit var anonSwitch: SwitchCompat
+    private lateinit var repliesAdapter: RepliesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +57,7 @@ class RepliesActivity : AppCompatActivity() {
             ListSerializer(BeaconReply.serializer()),
             replyListData
         )
-        val repliesAdapter = RepliesAdapter(this, replies)
+        repliesAdapter = RepliesAdapter(this, replies)
         val repliesListView = findViewById<ListView>(R.id.repliesListView)
         repliesListView.adapter = repliesAdapter
 
@@ -78,7 +81,7 @@ class RepliesActivity : AppCompatActivity() {
         val positionTextView = findViewById<TextView>(R.id.position)
         positionTextView.text = post.getFormattedPosition()
         val datetimeTextView = findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = post.datetime
+        datetimeTextView.text = Conversion.formatDateTime(post.datetime)
     }
 
     private fun postReplyToServer() {
@@ -118,7 +121,7 @@ class RepliesActivity : AppCompatActivity() {
             { _ ->
                 // Success
                 Toast.makeText(this, "Reply published successfully!", Toast.LENGTH_SHORT).show()
-                finish()
+                repliesAdapter.add(reply)
             },
             { error ->
                 // Failure
