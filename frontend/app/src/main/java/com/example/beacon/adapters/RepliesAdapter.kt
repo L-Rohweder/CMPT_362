@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.transition.Visibility
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
@@ -18,6 +19,7 @@ import com.example.beacon.models.BeaconReply
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
+import com.example.beacon.utils.Conversion
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -57,7 +59,10 @@ class RepliesAdapter(context: Context, private var replies: List<BeaconReply>):
 
         // Display formatted datetime
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = reply.datetime
+        datetimeTextView.text = Conversion.formatDateTime(reply.datetime)
+
+        val positionTextView = listWidgetView.findViewById<TextView>(R.id.position)
+        positionTextView.visibility = View.GONE
 
         return listWidgetView
     }

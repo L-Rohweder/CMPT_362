@@ -21,6 +21,7 @@ import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
+import com.example.beacon.utils.Conversion
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -78,7 +79,7 @@ class RepliesActivity : AppCompatActivity() {
         val positionTextView = findViewById<TextView>(R.id.position)
         positionTextView.text = post.getFormattedPosition()
         val datetimeTextView = findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = post.datetime
+        datetimeTextView.text = Conversion.formatDateTime(post.datetime)
     }
 
     private fun postReplyToServer() {
