@@ -1,18 +1,24 @@
 package com.example.beacon.activities
 
 import android.content.Context
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import com.example.beacon.R
 import com.example.beacon.adapters.RepliesAdapter
 import com.example.beacon.models.BeaconPost
@@ -57,9 +63,13 @@ class RepliesActivity : AppCompatActivity() {
             ListSerializer(BeaconReply.serializer()),
             replyListData
         )
+
+        val scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
+
         repliesAdapter = RepliesAdapter(this, replies)
-        val repliesListView = findViewById<ListView>(R.id.repliesListView)
-        repliesListView.adapter = repliesAdapter
+        for (i in 0..<repliesAdapter.count) {
+            scrollLinearLayout.addView(repliesAdapter.getView(i, null, scrollLinearLayout))
+        }
 
         post = Json.decodeFromString(BeaconPost.serializer(), postData)
         contentEditText = findViewById(R.id.contentEditText)
@@ -82,6 +92,16 @@ class RepliesActivity : AppCompatActivity() {
         positionTextView.text = post.getFormattedPosition()
         val datetimeTextView = findViewById<TextView>(R.id.datetime)
         datetimeTextView.text = Conversion.formatDateTime(post.datetime)
+
+        val postImageView = findViewById<ImageView>(R.id.postImage)
+        if(post.imageLink.isNotEmpty()){
+            postImageView.visibility = View.VISIBLE
+            Glide.with(this).load(post.imageLink).into(postImageView)
+        }
+        else{
+            postImageView.visibility = View.GONE
+        }
+
     }
 
     private fun postReplyToServer() {
