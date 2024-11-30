@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 import com.bumptech.glide.Glide
+import com.example.beacon.utils.Conversion
 import java.util.Date
 
 class PostsAdapter(
@@ -72,7 +73,7 @@ class PostsAdapter(
 
         // Display formatted datetime
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = formatDateTime(post.datetime)
+        datetimeTextView.text = Conversion.formatDateTime(post.datetime)
 
         val postImageView = listWidgetView.findViewById<ImageView>(R.id.postImage)
 
@@ -137,33 +138,6 @@ class PostsAdapter(
     fun updatePosts(newPosts: List<BeaconPost>) {
         this.posts = newPosts
         notifyDataSetChanged()
-    }
-
-    private fun formatDateTime(datetime: String): String {
-        return try {
-            // Assume the datetime from the server is in UTC
-            val originalFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            originalFormat.timeZone = TimeZone.getTimeZone("UTC")
-
-            //this is for recent posts
-            val postDate = originalFormat.parse(datetime)
-            val currentTime = Date()
-
-            val milisSincePost = currentTime.time-postDate.time
-            val hoursSincePost = milisSincePost/(3600000)
-            if(hoursSincePost <24){
-                return "${hoursSincePost} hours ago"
-            }
-
-            val targetFormat = SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault())
-            targetFormat.timeZone = TimeZone.getDefault() // Device's local timezone
-
-            val date = originalFormat.parse(datetime)
-            targetFormat.format(date)
-        } catch (e: Exception) {
-            Log.e("PostsAdapter", "Error parsing datetime: $datetime", e)
-            datetime // Return the original string if parsing fails
-        }
     }
 
     private fun getRepliesFromServer(post: BeaconPost) {

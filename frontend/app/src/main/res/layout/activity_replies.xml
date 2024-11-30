@@ -7,28 +7,33 @@
     android:layout_height="match_parent"
     android:layout_margin="10dp"
     tools:context=".activities.RepliesActivity"
+    android:weightSum="10"
     android:orientation="vertical">
-
-    <include
+    
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/posts_adapter_view"/>
-
-    <ListView
-        android:id="@+id/repliesListView"
-        android:layout_width="match_parent"
+        android:layout_weight="10"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="8dp"
-        android:padding="8dp" />
+        android:fillViewport="true">
+        <!-- Replies will get added here programmatically -->
+        <LinearLayout
+            android:id="@+id/scrollLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/posts_adapter_view"/>
+        </LinearLayout>
+    </ScrollView>
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        android:layout_marginBottom="16dp">
+        app:cardElevation="4dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -55,5 +60,4 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
 </LinearLayout>

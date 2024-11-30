@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,11 +26,13 @@ import com.android.volley.RequestQueue
 import com.android.volley.TimeoutError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.example.beacon.R
+import com.example.beacon.activities.RepliesActivity
 import com.example.beacon.databinding.FragmentPostCreateBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
+import com.example.beacon.utils.Constants.EXTRA_POST
+import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
 import com.example.beacon.utils.ImageHandler
 import com.example.beacon.view_models.UserViewModel
 import com.google.firebase.Firebase
@@ -55,6 +58,7 @@ class PostCreateFragment : Fragment() {
     private var requestQueue: RequestQueue? = null
     private lateinit var firebaseStorage: FirebaseStorage
     private var containsImage = false
+    private lateinit var progressBar: ProgressBar
 
 
     override fun onCreateView(
@@ -83,6 +87,7 @@ class PostCreateFragment : Fragment() {
         val publishPostButton = binding.publishPostButton
         image = binding.postImageView
         anonSwitch = binding.anonSwitch
+        progressBar = binding.progressBar
 
         val prefs = requireActivity().getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
         anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
@@ -154,6 +159,7 @@ class PostCreateFragment : Fragment() {
 
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         userViewModel.requestedLocation.value = true
+        progressBar.visibility = View.VISIBLE
 
         userViewModel.location.observe(viewLifecycleOwner) { location ->
             if (userViewModel.requestedLocation.value == true) {
@@ -175,7 +181,10 @@ class PostCreateFragment : Fragment() {
                             postToServer(post)
                             userViewModel.requestedLocation.value = false
                         }
-                        else{Toast.makeText(requireContext(), "Image upload failed. Try again.", Toast.LENGTH_SHORT).show()}
+                        else{
+                            Toast.makeText(requireContext(), "Image upload failed. Try again.", Toast.LENGTH_SHORT).show()
+                            progressBar.visibility = View.INVISIBLE
+                        }
 
                     }
                 }
@@ -240,7 +249,11 @@ class PostCreateFragment : Fragment() {
                         Toast.makeText(context, response.getString("error"), Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Post published successfully!", Toast.LENGTH_SHORT).show()
-                        binding.contentEditText.text.clear()
+                        val intent = Intent(context, RepliesActivity::class.java)
+                        intent.putExtra(EXTRA_POST, Json.encodeToString(BeaconPost.serializer(), post))
+                        intent.putExtra(EXTRA_REPLY_LIST, "[]")
+                        startActivity(intent)
+                        clearViews()
                     }
                 }
             },
@@ -262,10 +275,17 @@ class PostCreateFragment : Fragment() {
                     Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
                     Log.e("PostError", "Error: ${error.message}", error)
                 }
+                progressBar.visibility = View.INVISIBLE
             })
 
         request.tag = this
         requestQueue?.add(request)
+    }
+
+    private fun clearViews() {
+        progressBar.visibility = View.INVISIBLE
+        binding.contentEditText.text.clear()
+        image.visibility = View.GONE
     }
 
     override fun onDestroyView() {

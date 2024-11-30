@@ -1,18 +1,24 @@
 package com.example.beacon.activities
 
 import android.content.Context
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
 import com.example.beacon.R
 import com.example.beacon.adapters.RepliesAdapter
 import com.example.beacon.models.BeaconPost
@@ -21,14 +27,18 @@ import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
+import com.example.beacon.utils.Conversion
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+import java.util.Date
 
 class RepliesActivity : AppCompatActivity() {
     private lateinit var post: BeaconPost
     private lateinit var contentEditText: EditText
     private lateinit var anonSwitch: SwitchCompat
+    private lateinit var repliesAdapter: RepliesAdapter
+    private lateinit var scrollLinearLayout: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,9 +64,12 @@ class RepliesActivity : AppCompatActivity() {
             ListSerializer(BeaconReply.serializer()),
             replyListData
         )
-        val repliesAdapter = RepliesAdapter(this, replies)
-        val repliesListView = findViewById<ListView>(R.id.repliesListView)
-        repliesListView.adapter = repliesAdapter
+
+        scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
+        repliesAdapter = RepliesAdapter(this, replies)
+        for (i in 0..<repliesAdapter.count) {
+            scrollLinearLayout.addView(repliesAdapter.getView(i, null, scrollLinearLayout))
+        }
 
         post = Json.decodeFromString(BeaconPost.serializer(), postData)
         contentEditText = findViewById(R.id.contentEditText)
@@ -78,7 +91,17 @@ class RepliesActivity : AppCompatActivity() {
         val positionTextView = findViewById<TextView>(R.id.position)
         positionTextView.text = post.getFormattedPosition()
         val datetimeTextView = findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = post.datetime
+        datetimeTextView.text = Conversion.formatDateTime(post.datetime)
+
+        val postImageView = findViewById<ImageView>(R.id.postImage)
+        if(post.imageLink.isNotEmpty()){
+            postImageView.visibility = View.VISIBLE
+            Glide.with(this).load(post.imageLink).into(postImageView)
+        }
+        else{
+            postImageView.visibility = View.GONE
+        }
+
     }
 
     private fun postReplyToServer() {
@@ -118,7 +141,9 @@ class RepliesActivity : AppCompatActivity() {
             { _ ->
                 // Success
                 Toast.makeText(this, "Reply published successfully!", Toast.LENGTH_SHORT).show()
-                finish()
+                val pos = repliesAdapter.count
+                repliesAdapter.add(reply)
+                scrollLinearLayout.addView(repliesAdapter.getView(pos, null, scrollLinearLayout))
             },
             { error ->
                 // Failure

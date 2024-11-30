@@ -24,6 +24,7 @@
         android:usesCleartextTraffic="true">
         
         <activity
+            android:screenOrientation="portrait"
             android:name=".activities.LoginActivity"
             android:exported="true">
             <intent-filter>
@@ -33,19 +34,25 @@
         </activity>
 
         <activity
+            android:screenOrientation="portrait"
             android:name=".activities.StartupActivity"
             android:exported="false" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".activities.RepliesActivity"
             android:exported="false" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".activities.TabbedActivity"
             android:exported="false">
         </activity>
-        <activity android:name=".activities.ProfileActivity" />
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".activities.ProfileActivity" />
 
 
         <activity
+            android:screenOrientation="portrait"
             android:name=".activities.SignupActivity"
             android:exported="false" />
 
