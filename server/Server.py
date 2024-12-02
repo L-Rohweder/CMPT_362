@@ -79,6 +79,7 @@ class Server:
                     sendUser(jsonfile, connection, self.db_connection)
                 case 'like':
                     storeLike(jsonfile, self.db_connection)
+                    connection.sendall(Response.OKBODY(json.dumps({"message": "OK"})).encode('utf-8'))
                 case 'getLikes':
                     sendLikes(jsonfile, connection, self.db_connection)
                 case _:
