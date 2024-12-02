@@ -154,7 +154,7 @@ class PostsAdapter(
         }
 
         listWidgetView.setOnClickListener {
-            getRepliesFromServer(post)
+            getRepliesFromServer(post,distance)
         }
 
         return listWidgetView
@@ -261,7 +261,7 @@ class PostsAdapter(
 
     }
 
-    private fun getRepliesFromServer(post: BeaconPost) {
+    private fun getRepliesFromServer(post: BeaconPost, distance:Double) {
         if (progressBar.visibility == View.VISIBLE) {
             return
         }
@@ -294,6 +294,7 @@ class PostsAdapter(
                     val intent = Intent(context, RepliesActivity::class.java)
                     intent.putExtra(EXTRA_POST, Json.encodeToString(BeaconPost.serializer(), post))
                     intent.putExtra(EXTRA_REPLY_LIST, response)
+                    intent.putExtra("distance",distance)
                     context.startActivity(intent)
                 } catch (e: Exception) {
                     Log.e("Error", "Parsing replies failed", e)
