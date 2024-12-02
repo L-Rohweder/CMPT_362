@@ -1,9 +1,10 @@
+import json
 def savePost(name, content, latitude, longitude, imageLink, userID, username, isAnon, dbConnection):
     cursor = dbConnection.cursor()
     try:
         cursor.execute('''
-            INSERT INTO posts (name, content, latitude, longitude, image_link, user_id, username, is_anon) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (name, content, latitude, longitude, imageLink or "", userID, username, isAnon))
+            INSERT INTO posts (user_id, name, content, latitude, longitude, image_link, username, liked_user_ids, is_anon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (userID,name, content, latitude, longitude, imageLink or "", username, json.dumps({"likes":[]}), isAnon))
         dbConnection.commit()
     except Exception as e:
         print("error saving in databaseModule: ", e)
@@ -17,6 +18,36 @@ def saveReply(postId, name, content, userId, isAnon, dbConnection):
         dbConnection.commit()
     except Exception as e:
         print("error saving in databaseModule: ", e)
+
+def getLikes(postId, dbConnection):
+    cursor = dbConnection.cursor()
+    try:
+        cursor.execute("SELECT liked_user_ids FROM posts WHERE id = ?",(postId))
+        return cursor.fetchall()
+    except Exception as e:
+        print("error liking in databaseModule: ", e)
+
+def likePost(postId, userId, dbConnection):
+    cursor = dbConnection.cursor()
+    try:
+        cursor.execute("SELECT liked_user_ids FROM posts WHERE id = ?", (postId,))
+        row = cursor.fetchone()
+        user_ids = json.loads(row[0])["likes"] if row[0] else []
+        new_user_id = str(userId)
+        if new_user_id not in user_ids:
+            user_ids.append(new_user_id)
+        updated_user_ids = json.dumps({"likes":user_ids})
+        if row:
+            cursor.execute("""
+                UPDATE posts
+                SET liked_user_ids = ?
+                WHERE id = ?;
+                """, (updated_user_ids, postId))
+            dbConnection.commit()
+        else:
+            raise Exception("Cannot Like, Post does not exist")
+    except Exception as e:
+        print("error liking in databaseModule: ", e)
 
 def getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection):
     cursor = dbConnection.cursor()
@@ -43,7 +74,7 @@ def getAllPosts(dbConnection):
     cursor = dbConnection.cursor()
     try:
         cursor.execute("""
-            SELECT name, content, latitude, longitude, image_link, user_id, username, created_at 
+            SELECT *
             FROM posts
         """)
         return cursor.fetchall()
