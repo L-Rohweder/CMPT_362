@@ -42,7 +42,7 @@ class PostsAdapter(
     context: Context,
     private var posts: List<BeaconPost>,
     private var progressBar: ProgressBar,
-    private var userLocation: LatLng?
+    var userLocation: LatLng?
 ): ArrayAdapter<BeaconPost>(context, R.layout.posts_adapter_view, posts) {
 
     override fun getItem(position: Int): BeaconPost {
@@ -61,7 +61,7 @@ class PostsAdapter(
         val listWidgetView = convertView ?: LayoutInflater.from(context).inflate(R.layout.posts_adapter_view, parent, false)
 
         val post = posts[position]
-
+        Log.d("PostsAdapter", "Number of posts: ${posts.size}")
         val usernameTextView = listWidgetView.findViewById<TextView>(R.id.username)
         if (!post.isAnon) {
             usernameTextView.text = post.name
@@ -98,13 +98,12 @@ class PostsAdapter(
         var likes = 0
         var isLiked = false
         val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
-        var dislikes = 0
         var isDisliked = false
         val likeText = listWidgetView.findViewById<TextView>(R.id.likeText)
 
         val prefs = context.getSharedPreferences("AUTH", MODE_PRIVATE)
         val userId = prefs.getInt("USER_ID", -1)
-        getLikesFromServer { userIds ->
+        getLikesFromServer(post.id) { userIds ->
             if (userIds != null) {
                 if(userId in userIds) {
                     isLiked = true
@@ -121,7 +120,6 @@ class PostsAdapter(
         likeButton.setOnClickListener {
             if(!isLiked) {
                 if(isDisliked){
-                    dislikes -= 1
                     isDisliked=false
                     dislikeButton.setImageResource(R.drawable.thumbsdown)
                 }
@@ -135,22 +133,20 @@ class PostsAdapter(
                 isLiked=false
                 likeButton.setImageResource(R.drawable.thumbsup)
             }
+            likeText.text = "Likes: $likes"
 
         }
 
         dislikeButton.setOnClickListener {
             if(!isDisliked) {
                 if(isLiked){
-                    likes -= 1
-                    isLiked=false
+                    isLiked = false
                     likeButton.setImageResource(R.drawable.thumbsup)
                 }
-                dislikes += 1
                 isDisliked=true
                 dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
             }
             else{
-                dislikes -= 1
                 isDisliked=false
                 dislikeButton.setImageResource(R.drawable.thumbsdown)
             }
@@ -164,23 +160,32 @@ class PostsAdapter(
         return listWidgetView
     }
 
-    fun getLikesFromServer(onResult: (List<Int>?) -> Unit){
+    fun getLikesFromServer(postId: Int,onResult: (List<Int>?) -> Unit){
         val url = "$BACKEND_IP/getLikes"
+        val params = JSONObject().apply {
+            put("postID", postId)
+        }
 
         val request = object : StringRequest(
             Method.POST, url,
             {
                 response->
                 try{
-                    val jsonResponse = JSONObject(response)
-                    val likesArray = jsonResponse.getJSONArray("likes")
-                    val userIds = mutableListOf<Int>()
-                    for (i in 0 until likesArray.length()) {
-                        val userObject = likesArray.getJSONObject(i)
-                        val userId = userObject.getInt("user_id")
-                        userIds.add(userId)
+                    Log.d("Response", "Server response: $response")
+                    if(response ==null){
+                        Log.d("Response", "Likes returned null")
                     }
-                    onResult(userIds)
+                    else {
+                        val jsonResponse = JSONObject(response)
+                        val likesArray = jsonResponse.getJSONArray("likes")
+                        val userIds = mutableListOf<Int>()
+                        for (i in 0 until likesArray.length()) {
+                            val userObject = likesArray.getJSONObject(i)
+                            val userId = userObject.getInt("userID")
+                            userIds.add(userId)
+                        }
+                        onResult(userIds)
+                    }
 
                 }catch (e: Exception) {
                     Log.e("Error", "Getting likes failed", e)
@@ -194,6 +199,7 @@ class PostsAdapter(
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
+            override fun getBody(): ByteArray = params.toString().toByteArray(Charsets.UTF_8)
         }
         val requestQueue = Volley.newRequestQueue(context)
         requestQueue.add(request)
@@ -202,8 +208,8 @@ class PostsAdapter(
     fun sendLikeToServer(postId:Int,userId:Int){
         val url = "$BACKEND_IP/like"
         val params = JSONObject().apply {
-            put("postId", postId)
-            put("userId", userId)
+            put("userID", userId)
+            put("postID", postId)
         }
         val request = object : StringRequest(
             Method.POST, url,
@@ -234,6 +240,7 @@ class PostsAdapter(
     }
 
     fun updatePosts(newPosts: List<BeaconPost>) {
+        Log.d("PostsAdapter", "Updating posts. New size: ${newPosts.size}")
         this.posts = newPosts
         notifyDataSetChanged()
     }
