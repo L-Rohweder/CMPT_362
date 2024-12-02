@@ -52,10 +52,22 @@ class HomeFragment : Fragment() {
 
         progressBar = root.findViewById(R.id.progressBar)
         requestQueue = Volley.newRequestQueue(requireActivity())
-
-        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar)
         val postListView = root.findViewById<ListView>(R.id.postsListView)
-        postListView.adapter = postsAdapter
+        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, null)
+        userViewModel.location.observe(viewLifecycleOwner) { currentLocation->
+            if( currentLocation!=null){
+                postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, currentLocation)
+                postListView.adapter = postsAdapter
+                Log.d("HomeFragment", "Location received: $currentLocation")
+            }
+            else{
+                Toast.makeText(requireContext(), "Location unavailable. Cannot get posts.", Toast.LENGTH_SHORT).show()
+                Log.d("HomeFragment", "Location is null")
+            }
+        }
+
+
 
         // Start periodic updates
         startPeriodicUpdates()
@@ -82,6 +94,7 @@ class HomeFragment : Fragment() {
         val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         val currentLocation = userViewModel.location.value
         val range = userViewModel.range.value
+
 
         if (currentLocation == null) {
             Toast.makeText(context, "Location not available", Toast.LENGTH_SHORT).show()

@@ -2,12 +2,14 @@ package com.example.beacon.adapters
 
 import android.content.Context
 import android.content.Intent
+import android.location.Location
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -32,12 +34,14 @@ import java.util.Locale
 import java.util.TimeZone
 import com.bumptech.glide.Glide
 import com.example.beacon.utils.Conversion
+import com.google.android.gms.maps.model.LatLng
 import java.util.Date
 
 class PostsAdapter(
     context: Context,
     private var posts: List<BeaconPost>,
-    private var progressBar: ProgressBar
+    private var progressBar: ProgressBar,
+    private var userLocation: LatLng?
 ): ArrayAdapter<BeaconPost>(context, R.layout.posts_adapter_view, posts) {
 
     override fun getItem(position: Int): BeaconPost {
@@ -69,7 +73,11 @@ class PostsAdapter(
         contentTextView.text = post.content
 
         val positionTextView = listWidgetView.findViewById<TextView>(R.id.position)
-        positionTextView.text = post.getFormattedPosition()
+        val distance = userLocation?.let {
+            calculateDistanceToPost(it.latitude, it.longitude, post.latitude, post.longitude)
+        } ?: 0.0 // Default to 0.0 if location is null
+        positionTextView.text = "${"%.2f".format(distance)} km away"
+
 
         // Display formatted datetime
         val datetimeTextView = listWidgetView.findViewById<TextView>(R.id.datetime)
@@ -85,10 +93,10 @@ class PostsAdapter(
             postImageView.visibility = View.GONE
         }
 
-        val likeButton = listWidgetView.findViewById<Button>(R.id.like)
+        val likeButton = listWidgetView.findViewById<ImageButton>(R.id.like)
         var likes = 0
         var isLiked = false
-        val dislikeButton = listWidgetView.findViewById<Button>(R.id.dislike)
+        val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
         var dislikes = 0
         var isDisliked = false
 
@@ -97,7 +105,7 @@ class PostsAdapter(
                 if(isDisliked){
                     dislikes -= 1
                     isDisliked=false
-                    dislikeButton.text = "Dislike(${dislikes})"
+                    dislikeButton.setImageResource(R.drawable.thumbsdown)
                 }
                 likes += 1
                 isLiked=true
@@ -106,7 +114,7 @@ class PostsAdapter(
                 likes -= 1
                 isLiked=false
             }
-            likeButton.text = "Like(${likes})"
+            likeButton.setImageResource(R.drawable.clickedthumbsup)
         }
 
 
@@ -116,7 +124,7 @@ class PostsAdapter(
                 if(isLiked){
                     likes -= 1
                     isLiked=false
-                    likeButton.text = "Like(${likes})"
+                    likeButton.setImageResource(R.drawable.thumbsup)
                 }
                 dislikes += 1
                 isDisliked=true
@@ -125,7 +133,7 @@ class PostsAdapter(
                 dislikes -= 1
                 isDisliked=false
             }
-            dislikeButton.text = "Dislike(${dislikes})"
+            dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
         }
 
         listWidgetView.setOnClickListener {
@@ -138,6 +146,22 @@ class PostsAdapter(
     fun updatePosts(newPosts: List<BeaconPost>) {
         this.posts = newPosts
         notifyDataSetChanged()
+    }
+
+    private fun calculateDistanceToPost(lat1: Double,lon1: Double,lat2: Double,lon2: Double):Double{
+        val location1 = Location("").apply{
+            latitude = lat1
+            longitude = lon1
+        }
+        val location2 = Location("").apply{
+            latitude = lat2
+            longitude = lon2
+        }
+
+        val distance = location1.distanceTo(location2)
+        //convert distance to km
+        return distance/1000.0
+
     }
 
     private fun getRepliesFromServer(post: BeaconPost) {
