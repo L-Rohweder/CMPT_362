@@ -4,7 +4,7 @@ def savePost(name, content, latitude, longitude, imageLink, userID, username, is
     try:
         cursor.execute('''
             INSERT INTO posts (user_id, name, content, latitude, longitude, image_link, username, liked_user_ids, is_anon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (userID,name, content, latitude, longitude, imageLink or "", username, json.dumps({"likes":[]}), isAnon))
+        ''', (userID,name, content, latitude, longitude, imageLink or "", username, json.dumps([]), isAnon))
         dbConnection.commit()
     except Exception as e:
         print("error saving in databaseModule: ", e)
@@ -22,8 +22,8 @@ def saveReply(postId, name, content, userId, isAnon, dbConnection):
 def getLikes(postId, dbConnection):
     cursor = dbConnection.cursor()
     try:
-        cursor.execute("SELECT liked_user_ids FROM posts WHERE id = ?",(postId))
-        return cursor.fetchall()
+        cursor.execute("SELECT liked_user_ids FROM posts WHERE id = ?",(postId,))
+        return cursor.fetchall()[0][0]
     except Exception as e:
         print("error liking in databaseModule: ", e)
 
@@ -32,11 +32,11 @@ def likePost(postId, userId, dbConnection):
     try:
         cursor.execute("SELECT liked_user_ids FROM posts WHERE id = ?", (postId,))
         row = cursor.fetchone()
-        user_ids = json.loads(row[0])["likes"] if row[0] else []
+        user_ids = json.loads(row[0]) if row[0] else []
         new_user_id = str(userId)
         if new_user_id not in user_ids:
             user_ids.append(new_user_id)
-        updated_user_ids = json.dumps({"likes":user_ids})
+        updated_user_ids = json.dumps(user_ids)
         if row:
             cursor.execute("""
                 UPDATE posts
