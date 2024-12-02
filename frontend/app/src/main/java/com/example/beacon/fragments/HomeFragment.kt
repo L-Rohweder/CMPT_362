@@ -55,10 +55,11 @@ class HomeFragment : Fragment() {
         val postListView = root.findViewById<ListView>(R.id.postsListView)
         val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, null)
+        postListView.adapter = postsAdapter
         userViewModel.location.observe(viewLifecycleOwner) { currentLocation->
             if( currentLocation!=null){
-                postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, currentLocation)
-                postListView.adapter = postsAdapter
+                postsAdapter.userLocation = currentLocation
+                postsAdapter.notifyDataSetChanged()
                 Log.d("HomeFragment", "Location received: $currentLocation")
             }
             else{
@@ -113,9 +114,12 @@ class HomeFragment : Fragment() {
             Method.POST, url,
             { response ->
                 try {
+                    Log.d("ServerResponse", "Response: $response")
                     progressBar.visibility = View.INVISIBLE
                     // Parse the response string into a list of BeaconPost objects
-                    val posts = Json.decodeFromString(
+
+                    val json = Json{ignoreUnknownKeys = true }
+                    val posts = json.decodeFromString(
                         ListSerializer(BeaconPost.serializer()),
                         response
                     )
