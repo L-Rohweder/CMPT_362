@@ -101,6 +101,8 @@ class PostsAdapter(
         val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
         var isDisliked = false
         val likeText = listWidgetView.findViewById<TextView>(R.id.likeText)
+        likeButton.setImageResource(R.drawable.thumbsup)
+        dislikeButton.setImageResource(R.drawable.thumbsdown)
 
         val prefs = context.getSharedPreferences("AUTH", MODE_PRIVATE)
         val userId = prefs.getInt("USER_ID", -1)
@@ -109,6 +111,7 @@ class PostsAdapter(
                 if(userId in userIds) {
                     isLiked = true
                     likeButton.setImageResource(R.drawable.clickedthumbsup)
+                    likeText.text = "Likes: $likes"
                 }
                 likes = userIds.size
             } else {
