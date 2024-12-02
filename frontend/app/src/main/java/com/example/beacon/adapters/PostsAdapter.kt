@@ -36,6 +36,7 @@ import java.util.TimeZone
 import com.bumptech.glide.Glide
 import com.example.beacon.utils.Conversion
 import com.google.android.gms.maps.model.LatLng
+import org.json.JSONArray
 import java.util.Date
 
 class PostsAdapter(
@@ -176,13 +177,10 @@ class PostsAdapter(
                         Log.d("Response", "Likes returned null")
                     }
                     else {
-                        val jsonResponse = JSONObject(response)
-                        val likesArray = jsonResponse.getJSONArray("likes")
+                        val json = JSONArray(response)
                         val userIds = mutableListOf<Int>()
-                        for (i in 0 until likesArray.length()) {
-                            val userObject = likesArray.getJSONObject(i)
-                            val userId = userObject.getInt("userID")
-                            userIds.add(userId)
+                        for (i in 0 until json.length()) {
+                            userIds.add(json.getString(i).toInt())
                         }
                         onResult(userIds)
                     }

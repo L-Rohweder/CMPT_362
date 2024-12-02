@@ -59,6 +59,7 @@ class RepliesActivity : AppCompatActivity() {
             finish()
             return
         }
+        var distance = intent.getDoubleExtra("distance",0.0)
 
         val replies = Json.decodeFromString(
             ListSerializer(BeaconReply.serializer()),
@@ -89,7 +90,7 @@ class RepliesActivity : AppCompatActivity() {
         val contentTextView = findViewById<TextView>(R.id.content)
         contentTextView.text = post.content
         val positionTextView = findViewById<TextView>(R.id.position)
-        positionTextView.text = post.getFormattedPosition()
+        positionTextView.text = "${"%.2f".format(distance)} km away"
         val datetimeTextView = findViewById<TextView>(R.id.datetime)
         datetimeTextView.text = Conversion.formatDateTime(post.datetime)
 

@@ -245,6 +245,7 @@ class PostCreateFragment : Fragment() {
             Request.Method.POST, url, body,
             { response ->
                 if (isAdded) {
+                    Log.d("postToServer","response: $response")
                     if (response.has("error")) {
                         Toast.makeText(context, response.getString("error"), Toast.LENGTH_SHORT).show()
                     } else {
