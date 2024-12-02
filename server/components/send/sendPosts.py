@@ -28,6 +28,7 @@ def sendPostList(connection, postlist):
 def postListListToPostObjectList(postlist):
     postObjList = []
     for post in postlist:
+        print(postlist)
         try:
             postObj = {
                 "id": post[0],
@@ -38,8 +39,9 @@ def postListListToPostObjectList(postlist):
                 "longitude": post[5],
                 "imageLink": post[6],
                 "username": post[7],
-                "datetime": post[8],
-                "isAnon": bool(post[9])
+                "likes": post[8],
+                "datetime": post[9],
+                "isAnon": bool(post[10])
             }
             postObjList.append(postObj)
         except IndexError as e:
