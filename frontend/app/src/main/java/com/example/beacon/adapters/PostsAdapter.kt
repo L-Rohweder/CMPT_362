@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.lifecycle.ViewModelProvider
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -99,6 +100,23 @@ class PostsAdapter(
         val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
         var dislikes = 0
         var isDisliked = false
+        val likeText = listWidgetView.findViewById<TextView>(R.id.likeText)
+
+        val prefs = context.getSharedPreferences("AUTH", MODE_PRIVATE)
+        val userId = prefs.getInt("USER_ID", -1)
+        getLikesFromServer { userIds ->
+            if (userIds != null) {
+                if(userId in userIds) {
+                    isLiked = true
+                    likeButton.setImageResource(R.drawable.clickedthumbsup)
+                }
+                likes = userIds.size
+            } else {
+                Log.e("Likes", "Failed to retrieve likes")
+            }
+        }
+
+        likeText.text = "Likes: $likes"
 
         likeButton.setOnClickListener {
             if(!isLiked) {
@@ -109,15 +127,16 @@ class PostsAdapter(
                 }
                 likes += 1
                 isLiked=true
+                sendLikeToServer(post.id,userId)
+                likeButton.setImageResource(R.drawable.clickedthumbsup)
             }
             else{
                 likes -= 1
                 isLiked=false
+                likeButton.setImageResource(R.drawable.thumbsup)
             }
-            likeButton.setImageResource(R.drawable.clickedthumbsup)
+
         }
-
-
 
         dislikeButton.setOnClickListener {
             if(!isDisliked) {
@@ -128,12 +147,14 @@ class PostsAdapter(
                 }
                 dislikes += 1
                 isDisliked=true
+                dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
             }
             else{
                 dislikes -= 1
                 isDisliked=false
+                dislikeButton.setImageResource(R.drawable.thumbsdown)
             }
-            dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
+
         }
 
         listWidgetView.setOnClickListener {
@@ -141,6 +162,75 @@ class PostsAdapter(
         }
 
         return listWidgetView
+    }
+
+    fun getLikesFromServer(onResult: (List<Int>?) -> Unit){
+        val url = "$BACKEND_IP/getLikes"
+
+        val request = object : StringRequest(
+            Method.POST, url,
+            {
+                response->
+                try{
+                    val jsonResponse = JSONObject(response)
+                    val likesArray = jsonResponse.getJSONArray("likes")
+                    val userIds = mutableListOf<Int>()
+                    for (i in 0 until likesArray.length()) {
+                        val userObject = likesArray.getJSONObject(i)
+                        val userId = userObject.getInt("user_id")
+                        userIds.add(userId)
+                    }
+                    onResult(userIds)
+
+                }catch (e: Exception) {
+                    Log.e("Error", "Getting likes failed", e)
+                    onResult(null)
+                }
+            },{
+                error->Log.e("Error", error.toString())
+                onResult(null)
+            }
+        ){
+            override fun getBodyContentType(): String {
+                return "application/json; charset=utf-8"
+            }
+        }
+        val requestQueue = Volley.newRequestQueue(context)
+        requestQueue.add(request)
+    }
+
+    fun sendLikeToServer(postId:Int,userId:Int){
+        val url = "$BACKEND_IP/like"
+        val params = JSONObject().apply {
+            put("postId", postId)
+            put("userId", userId)
+        }
+        val request = object : StringRequest(
+            Method.POST, url,
+            { response ->
+                try {
+                    // Handle the server response
+                    val jsonResponse = JSONObject(response)
+                    val success = jsonResponse.getBoolean("success")
+                    if (success) {
+                        Log.d("Like", "Like sent successfully")
+                    } else {
+                        Log.e("Like", "Failed to like post")
+                    }
+                } catch (e: Exception) {
+                    Log.e("Error", "Parsing response failed", e)
+                }
+            },
+            { error ->
+                // Handle error responses
+                Log.e("Error", "Failed to send like to server: ${error.message}")
+            }
+        ){
+            override fun getBody(): ByteArray = params.toString().toByteArray(Charsets.UTF_8)
+
+            override fun getBodyContentType(): String = "application/json; charset=utf-8"
+        }
+        Volley.newRequestQueue(context).add(request)
     }
 
     fun updatePosts(newPosts: List<BeaconPost>) {
