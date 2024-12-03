@@ -31,3 +31,26 @@ MAPS_API_KEY=someapikeyhereperhaps
 ```
 
 To generate a Google Maps key, refer to this page: https://developers.google.com/maps/documentation/android-sdk/get-api-key.
+
+
+
+## Android Version Compatibility
+
+### Android 13 (API 33) Issue
+We've identified a null pointer exception in Android 13 related to Parcelable implementation in our location handling. This occurs due to changes in how Android 13 handles Parcelable objects and null safety. The issue manifests when:
+- Passing location data between activities
+- Handling saved instance states
+- Processing location updates in the background
+
+### Solution
+We provide two versions of the APP:
+1. **Standard Version (app.apk)**: Optimized for Android 14+ and works flawlessly with the latest Android versions
+2. **Android 13 Compatible Version (appforandroid13.apk)**: Modified implementation that addresses the Parcelable null pointer exception specific to Android 13
+
+### Technical Details
+The issue stems from Android 13's stricter null safety checks in Parcelable implementations. Our workaround involves:
+- Additional null checks in location data serialization
+- Modified Parcelable implementation for Android 13 compatibility
+- Adjusted background location handling
+
+We recommend using the version that matches your Android version for the best experience.
