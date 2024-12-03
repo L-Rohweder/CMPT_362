@@ -29,12 +29,11 @@ import org.json.JSONObject
 import com.bumptech.glide.Glide
 import com.example.beacon.utils.Conversion
 import com.google.android.gms.maps.model.LatLng
-import org.json.JSONArray
 
 class PostsAdapter(
     context: Context,
     private var posts: List<BeaconPost>,
-    private var progressBar: ProgressBar,
+    private var progressBar: ProgressBar?,
     var userLocation: LatLng?
 ): ArrayAdapter<BeaconPost>(context, R.layout.posts_adapter_view, posts) {
 
@@ -88,125 +87,79 @@ class PostsAdapter(
         }
 
         val likeButton = listWidgetView.findViewById<ImageButton>(R.id.like)
-        var likes = 0
         var isLiked = false
-        var hasLiked = false
-        val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
         var isDisliked = false
+        val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
         val likeText = listWidgetView.findViewById<TextView>(R.id.likeText)
         likeButton.setImageResource(R.drawable.thumbsup)
         dislikeButton.setImageResource(R.drawable.thumbsdown)
 
         val prefs = context.getSharedPreferences("AUTH", MODE_PRIVATE)
         val userId = prefs.getInt("USER_ID", -1)
-        getLikesFromServer(post.id) { userIds ->
-            if (userIds != null) {
-                if(userId in userIds) {
-                    isLiked = true
-                    likeButton.setImageResource(R.drawable.clickedthumbsup)
-                    hasLiked=true
-                }
-                likes = userIds.size
-                likeText.text = "$likes"
-            } else {
-                Log.e("Likes", "Failed to retrieve likes")
-            }
+        val likedUserIds = post.getLikedUserIds()
+        if(userId in likedUserIds) {
+            isLiked = true
+            likeButton.setImageResource(R.drawable.clickedthumbsup)
         }
-
+        val dislikedUserIds = post.getDislikedUserIds()
+        if(userId in dislikedUserIds) {
+            isDisliked = true
+            dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
+        }
+        var likes = likedUserIds.size - dislikedUserIds.size
         likeText.text = "$likes"
 
         likeButton.setOnClickListener {
+            sendLikeToServer("like", post.id, userId, post)
             if(!isLiked) {
-                if(isDisliked){
+                if (isDisliked) {
+                    likes += 1
                     isDisliked=false
                     dislikeButton.setImageResource(R.drawable.thumbsdown)
-                }
-                if(!hasLiked) {
-                    sendLikeToServer(post.id,userId)
-
                 }
                 isLiked=true
                 likes += 1
                 likeButton.setImageResource(R.drawable.clickedthumbsup)
             }
-            else{
+            else {
                 likes -= 1
-                isLiked=false
+                isLiked = false
                 likeButton.setImageResource(R.drawable.thumbsup)
             }
             likeText.text = "$likes"
-            hasLiked=true
         }
 
         dislikeButton.setOnClickListener {
+            sendLikeToServer("dislike", post.id, userId, post)
             if(!isDisliked) {
                 if(isLiked){
                     isLiked = false
-                    likeButton.setImageResource(R.drawable.thumbsup)
                     likes -= 1
-                    likeText.text = "$likes"
+                    likeButton.setImageResource(R.drawable.thumbsup)
                 }
+                likes -= 1
                 isDisliked=true
                 dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
             }
             else{
+                likes += 1
                 isDisliked=false
                 dislikeButton.setImageResource(R.drawable.thumbsdown)
             }
-
+            likeText.text = "$likes"
         }
 
-        listWidgetView.setOnClickListener {
-            getRepliesFromServer(post,distance)
+        if (progressBar != null) {
+            listWidgetView.setOnClickListener {
+                getRepliesFromServer(post,distance)
+            }
         }
 
         return listWidgetView
     }
 
-    fun getLikesFromServer(postId: Int,onResult: (List<Int>?) -> Unit){
-        val url = "$BACKEND_IP/getLikes"
-        val params = JSONObject().apply {
-            put("postID", postId)
-        }
-
-        val request = object : StringRequest(
-            Method.POST, url,
-            {
-                response->
-                try{
-                    Log.d("Response", "Server response: $response")
-                    if(response ==null){
-                        Log.d("Response", "Likes returned null")
-                    }
-                    else {
-                        val json = JSONArray(response)
-                        val userIds = mutableListOf<Int>()
-                        for (i in 0 until json.length()) {
-                            userIds.add(json.getString(i).toInt())
-                        }
-                        onResult(userIds)
-                    }
-
-                }catch (e: Exception) {
-                    Log.e("Error", "Getting likes failed", e)
-                    onResult(null)
-                }
-            },{
-                error->Log.e("Error", error.toString())
-                onResult(null)
-            }
-        ){
-            override fun getBodyContentType(): String {
-                return "application/json; charset=utf-8"
-            }
-            override fun getBody(): ByteArray = params.toString().toByteArray(Charsets.UTF_8)
-        }
-        val requestQueue = Volley.newRequestQueue(context)
-        requestQueue.add(request)
-    }
-
-    fun sendLikeToServer(postId:Int,userId:Int){
-        val url = "$BACKEND_IP/like"
+    fun sendLikeToServer(type: String, postId: Int, userId: Int, post: BeaconPost){
+        val url = "$BACKEND_IP/$type"
         val params = JSONObject().apply {
             put("userID", userId)
             put("postID", postId)
@@ -218,10 +171,12 @@ class PostsAdapter(
                     // Handle the server response
                     val jsonResponse = JSONObject(response)
                     val success = jsonResponse.getBoolean("success")
+                    post.likedUserIds = jsonResponse.getString("likedUserIds")
+                    post.dislikedUserIds = jsonResponse.getString("dislikedUserIds")
                     if (success) {
-                        Log.d("Like", "Like sent successfully")
+                        Log.d(type, "$type sent successfully")
                     } else {
-                        Log.e("Like", "Failed to like post")
+                        Log.e(type, "Failed to $type post")
                     }
                 } catch (e: Exception) {
                     Log.e("Error", "Parsing response failed", e)
@@ -229,7 +184,7 @@ class PostsAdapter(
             },
             { error ->
                 // Handle error responses
-                Log.e("Error", "Failed to send like to server: ${error.message}")
+                Log.e("Error", "Failed to send $type to server: ${error.message}")
             }
         ){
             override fun getBody(): ByteArray = params.toString().toByteArray(Charsets.UTF_8)
@@ -262,10 +217,10 @@ class PostsAdapter(
     }
 
     private fun getRepliesFromServer(post: BeaconPost, distance:Double) {
-        if (progressBar.visibility == View.VISIBLE) {
+        if (progressBar?.visibility == View.VISIBLE) {
             return
         }
-        progressBar.visibility = View.VISIBLE
+        progressBar?.visibility = View.VISIBLE
 
         val requestQueue = Volley.newRequestQueue(context)
         val url = "$BACKEND_IP/getReplies"
@@ -278,7 +233,7 @@ class PostsAdapter(
             Method.POST, url,
             { response ->
                 try {
-                    progressBar.visibility = View.INVISIBLE
+                    progressBar?.visibility = View.INVISIBLE
 
                     // Parse the response string into a list of BeaconPost objects
                     val replies = Json.decodeFromString(
@@ -302,7 +257,7 @@ class PostsAdapter(
                 }
             },
             { error ->
-                progressBar.visibility = View.INVISIBLE
+                progressBar?.visibility = View.INVISIBLE
                 Toast.makeText(context, "Failed to retrieve replies from server.", Toast.LENGTH_SHORT).show()
                 Log.e("Error", error.toString())
             }

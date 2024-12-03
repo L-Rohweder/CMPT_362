@@ -46,7 +46,9 @@ def postListListToPostObjectList(postlist):
                 "imageLink": post[6] or "",
                 "username": post[7],
                 "datetime": post_datetime,
-                "isAnon": bool(post[9])
+                "isAnon": bool(post[9]),
+                "likedUserIds": post[10],
+                "dislikedUserIds": post[11]
             }
             postObjList.append(postObj)
         except IndexError as e:

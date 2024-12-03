@@ -36,6 +36,7 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_anon INTEGER NOT NULL DEFAULT 0,
     liked_user_ids TEXT,
+    disliked_user_ids TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );""")
 

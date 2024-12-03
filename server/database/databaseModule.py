@@ -1,10 +1,11 @@
 import json
+
 def savePost(name, content, latitude, longitude, imageLink, userID, username, isAnon, dbConnection):
     cursor = dbConnection.cursor()
     try:
         cursor.execute('''
-            INSERT INTO posts (user_id, name, content, latitude, longitude, image_link, username, liked_user_ids, is_anon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (userID,name, content, latitude, longitude, imageLink or "", username, json.dumps([]), isAnon))
+            INSERT INTO posts (user_id, name, content, latitude, longitude, image_link, username, is_anon, liked_user_ids, disliked_user_ids) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (userID,name, content, latitude, longitude, imageLink or "", username, isAnon, json.dumps([]), json.dumps([])))
         dbConnection.commit()
     except Exception as e:
         print("error saving in databaseModule: ", e)
@@ -30,24 +31,56 @@ def getLikes(postId, dbConnection):
 def likePost(postId, userId, dbConnection):
     cursor = dbConnection.cursor()
     try:
-        cursor.execute("SELECT liked_user_ids FROM posts WHERE id = ?", (postId,))
+        cursor.execute("SELECT liked_user_ids, disliked_user_ids FROM posts WHERE id = ?", (postId,))
         row = cursor.fetchone()
-        user_ids = json.loads(row[0]) if row[0] else []
+        liked_user_ids = json.loads(row[0]) if row[0] else []
+        disliked_user_ids = json.loads(row[1]) if row[1] else []
         new_user_id = str(userId)
-        if new_user_id not in user_ids:
-            user_ids.append(new_user_id)
-        updated_user_ids = json.dumps(user_ids)
+        if new_user_id in liked_user_ids:
+            liked_user_ids.remove(new_user_id)
+        else:
+            liked_user_ids.append(new_user_id)
+        if new_user_id in disliked_user_ids:
+            disliked_user_ids.remove(new_user_id)
         if row:
             cursor.execute("""
                 UPDATE posts
-                SET liked_user_ids = ?
+                SET liked_user_ids = ?, disliked_user_ids = ?
                 WHERE id = ?;
-                """, (updated_user_ids, postId))
+                """, (json.dumps(liked_user_ids), json.dumps(disliked_user_ids), postId))
             dbConnection.commit()
+            return (json.dumps(liked_user_ids), json.dumps(disliked_user_ids))
         else:
-            raise Exception("Cannot Like, Post does not exist")
+            raise Exception("Cannot like, Post does not exist")
     except Exception as e:
-        print("error liking in databaseModule: ", e)
+        print("error like in databaseModule: ", e)
+
+def dislikePost(postId, userId, dbConnection):
+    cursor = dbConnection.cursor()
+    try:
+        cursor.execute("SELECT liked_user_ids, disliked_user_ids FROM posts WHERE id = ?", (postId,))
+        row = cursor.fetchone()
+        liked_user_ids = json.loads(row[0]) if row[0] else []
+        disliked_user_ids = json.loads(row[1]) if row[1] else []
+        new_user_id = str(userId)
+        if new_user_id in liked_user_ids:
+            liked_user_ids.remove(new_user_id)
+        if new_user_id in disliked_user_ids:
+            disliked_user_ids.remove(new_user_id)
+        else:
+            disliked_user_ids.append(new_user_id)
+        if row:
+            cursor.execute("""
+                UPDATE posts
+                SET liked_user_ids = ?, disliked_user_ids = ?
+                WHERE id = ?;
+                """, (json.dumps(liked_user_ids), json.dumps(disliked_user_ids), postId))
+            dbConnection.commit()
+            return (json.dumps(liked_user_ids), json.dumps(disliked_user_ids))
+        else:
+            raise Exception("Cannot Dislike, Post does not exist")
+    except Exception as e:
+        print("error disliking in databaseModule: ", e)
 
 def getPostsInRange(lowLat, highLat, lowLong, highLong, dbConnection):
     cursor = dbConnection.cursor()

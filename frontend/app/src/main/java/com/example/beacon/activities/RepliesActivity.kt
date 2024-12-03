@@ -3,20 +3,18 @@ package com.example.beacon.activities
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.ViewModelProvider
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.bumptech.glide.Glide
 import com.example.beacon.R
+import com.example.beacon.adapters.PostsAdapter
 import com.example.beacon.adapters.RepliesAdapter
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.models.BeaconReply
@@ -24,7 +22,7 @@ import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
-import com.example.beacon.utils.Conversion
+import com.example.beacon.view_models.UserViewModel
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -34,7 +32,7 @@ class RepliesActivity : AppCompatActivity() {
     private lateinit var contentEditText: EditText
     private lateinit var anonSwitch: SwitchCompat
     private lateinit var repliesAdapter: RepliesAdapter
-    private lateinit var scrollLinearLayout: LinearLayout
+    private lateinit var repliesLinearLayout: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,18 +53,11 @@ class RepliesActivity : AppCompatActivity() {
             finish()
             return
         }
-        var distance = intent.getDoubleExtra("distance",0.0)
 
         val replies = Json.decodeFromString(
             ListSerializer(BeaconReply.serializer()),
             replyListData
         )
-
-        scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
-        repliesAdapter = RepliesAdapter(this, replies)
-        for (i in 0..<repliesAdapter.count) {
-            scrollLinearLayout.addView(repliesAdapter.getView(i, null, scrollLinearLayout))
-        }
 
         post = Json.decodeFromString(BeaconPost.serializer(), postData)
         contentEditText = findViewById(R.id.contentEditText)
@@ -75,30 +66,20 @@ class RepliesActivity : AppCompatActivity() {
             postReplyToServer()
         }
 
+        val postsLinearLayout = findViewById<LinearLayout>(R.id.postLinearLayout)
+        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        val postsAdapter = PostsAdapter(this, listOf(post), null, userViewModel.location.value)
+        postsLinearLayout.addView(postsAdapter.getView(0, null, postsLinearLayout))
+
+        repliesLinearLayout = findViewById(R.id.repliesLinearLayout)
+        repliesAdapter = RepliesAdapter(this, replies)
+        for (i in 0..<repliesAdapter.count) {
+            repliesLinearLayout.addView(repliesAdapter.getView(i, null, repliesLinearLayout))
+        }
+
         val prefs = getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
         anonSwitch = findViewById(R.id.anonSwitch)
         anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
-
-        val usernameTextView = findViewById<TextView>(R.id.username)
-        if (!post.isAnon) {
-            usernameTextView.text = post.name
-        }
-        val contentTextView = findViewById<TextView>(R.id.content)
-        contentTextView.text = post.content
-        val positionTextView = findViewById<TextView>(R.id.position)
-        positionTextView.text = "${"%.2f".format(distance)} km away"
-        val datetimeTextView = findViewById<TextView>(R.id.datetime)
-        datetimeTextView.text = Conversion.formatDateTime(post.datetime)
-
-        val postImageView = findViewById<ImageView>(R.id.replyImage)
-        if(post.imageLink.isNotEmpty()){
-            postImageView.visibility = View.VISIBLE
-            Glide.with(this).load(post.imageLink).into(postImageView)
-        }
-        else{
-            postImageView.visibility = View.GONE
-        }
-
     }
 
     private fun postReplyToServer() {
@@ -140,7 +121,7 @@ class RepliesActivity : AppCompatActivity() {
                 Toast.makeText(this, "Reply published successfully!", Toast.LENGTH_SHORT).show()
                 val pos = repliesAdapter.count
                 repliesAdapter.add(reply)
-                scrollLinearLayout.addView(repliesAdapter.getView(pos, null, scrollLinearLayout))
+                repliesLinearLayout.addView(repliesAdapter.getView(pos, null, repliesLinearLayout))
             },
             { error ->
                 // Failure

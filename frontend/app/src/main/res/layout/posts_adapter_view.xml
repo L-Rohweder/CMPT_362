@@ -79,8 +79,6 @@
                 android:textColor="@color/primary_accent"/>
         </LinearLayout>
 
-
-
         <ImageView
             android:id="@+id/postImage"
             android:layout_width="match_parent"
