@@ -107,13 +107,13 @@ class PostsAdapter(
                     hasLiked=true
                 }
                 likes = userIds.size
-                likeText.text = "Likes: $likes"
+                likeText.text = "$likes"
             } else {
                 Log.e("Likes", "Failed to retrieve likes")
             }
         }
 
-        likeText.text = "Likes: $likes"
+        likeText.text = "$likes"
 
         likeButton.setOnClickListener {
             if(!isLiked) {
@@ -134,7 +134,7 @@ class PostsAdapter(
                 isLiked=false
                 likeButton.setImageResource(R.drawable.thumbsup)
             }
-            likeText.text = "Likes: $likes"
+            likeText.text = "$likes"
             hasLiked=true
         }
 
@@ -144,7 +144,7 @@ class PostsAdapter(
                     isLiked = false
                     likeButton.setImageResource(R.drawable.thumbsup)
                     likes -= 1
-                    likeText.text = "Likes: $likes"
+                    likeText.text = "$likes"
                 }
                 isDisliked=true
                 dislikeButton.setImageResource(R.drawable.clickedthumbsdown)

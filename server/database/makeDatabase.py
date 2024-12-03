@@ -33,9 +33,9 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS posts (
     longitude REAL NOT NULL,
     image_link character varying(256),
     username character varying(256),
-    liked_user_ids TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_anon INTEGER NOT NULL DEFAULT 0,
+    liked_user_ids TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );""")
 

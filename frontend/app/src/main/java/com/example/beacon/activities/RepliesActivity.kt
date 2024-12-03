@@ -64,7 +64,6 @@ class RepliesActivity : AppCompatActivity() {
 
         scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
         repliesAdapter = RepliesAdapter(this, replies)
-        scrollLinearLayout.removeAllViews()
         for (i in 0..<repliesAdapter.count) {
             scrollLinearLayout.addView(repliesAdapter.getView(i, null, scrollLinearLayout))
         }
