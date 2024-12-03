@@ -6,6 +6,8 @@ from components.send.sendReplies import sendReplies
 from components.store.storePost import storePost
 from components.store.storeUser import storeUser
 from components.store.storeReply import storeReply
+from components.store.storeLike import storeLike
+from components.send.sendLikes import sendLikes
 import utils.Response as Response
 import configparser
 import socket
@@ -75,6 +77,10 @@ class Server:
                 case 'getUser':
                     print(f"Processing login request for user: {jsonfile.get('username')}")
                     sendUser(jsonfile, connection, self.db_connection)
+                case 'like':
+                    storeLike(jsonfile, self.db_connection)
+                case 'getLikes':
+                    sendLikes(jsonfile, connection, self.db_connection)
                 case _:
                     connection.sendall(Response.ERROR("Invalid endpoint").encode('utf-8'))
         except Exception as e:

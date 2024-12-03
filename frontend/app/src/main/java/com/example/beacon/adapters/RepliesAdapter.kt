@@ -42,7 +42,7 @@ class RepliesAdapter(context: Context, private var replies: List<BeaconReply>):
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val listWidgetView = convertView ?: LayoutInflater.from(context).inflate(R.layout.posts_adapter_view, parent, false)
+        val listWidgetView = convertView ?: LayoutInflater.from(context).inflate(R.layout.replies_adapter_view, parent, false)
 
         val reply = replies[position]
 
@@ -73,7 +73,7 @@ class RepliesAdapter(context: Context, private var replies: List<BeaconReply>):
     }
 
     fun updateReplies(newPosts: List<BeaconReply>) {
-        this.replies = newPosts
+        replies = (replies + newPosts).distinctBy { it.id }
         notifyDataSetChanged()
     }
 }

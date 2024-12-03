@@ -46,10 +46,23 @@ class HomeFragment : Fragment() {
 
         progressBar = root.findViewById(R.id.progressBar)
         requestQueue = Volley.newRequestQueue(requireActivity())
-
-        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar)
         val postListView = root.findViewById<ListView>(R.id.postsListView)
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, null)
         postListView.adapter = postsAdapter
+        userViewModel.location.observe(viewLifecycleOwner) { currentLocation->
+            if( currentLocation!=null){
+                postsAdapter.userLocation = currentLocation
+                postsAdapter.notifyDataSetChanged()
+                Log.d("HomeFragment", "Location received: $currentLocation")
+            }
+            else{
+                Toast.makeText(requireContext(), "Location unavailable. Cannot get posts.", Toast.LENGTH_SHORT).show()
+                Log.d("HomeFragment", "Location is null")
+            }
+        }
+
+
 
         // Initialize UserViewModel
         userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
@@ -72,6 +85,7 @@ class HomeFragment : Fragment() {
         val currentLocation = userViewModel.location.value
         val range = userViewModel.range.value
 
+
         if (currentLocation == null) {
             Log.d("HomeFragment", "Location not available yet")
             return
@@ -89,9 +103,12 @@ class HomeFragment : Fragment() {
             Method.POST, "$BACKEND_IP/get",
             { response ->
                 try {
+                    Log.d("ServerResponse", "Response: $response")
                     progressBar.visibility = View.INVISIBLE
                     // Parse the response string into a list of BeaconPost objects
-                    val posts = Json.decodeFromString(
+
+                    val json = Json{ignoreUnknownKeys = true }
+                    val posts = json.decodeFromString(
                         ListSerializer(BeaconPost.serializer()),
                         response
                     )
