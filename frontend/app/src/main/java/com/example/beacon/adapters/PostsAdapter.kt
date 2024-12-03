@@ -226,7 +226,6 @@ class PostsAdapter(
         val requestQueue = Volley.newRequestQueue(context)
         val url = "$BACKEND_IP/getReplies"
 
-        // Creating the JSON body with out current latitude and longitude
         val params = JSONObject()
         params.put("postId", post.id)
 
@@ -241,17 +240,19 @@ class PostsAdapter(
                         ListSerializer(BeaconReply.serializer()),
                         response)
 
+                    // Only show toast if there are no replies
                     if (replies.isEmpty()) {
-                        Toast.makeText(context, "No replies.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Replies retrieved successfully!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "No replies yet.", Toast.LENGTH_SHORT).show()
                     }
 
                     val intent = Intent(context, RepliesActivity::class.java)
                     intent.putExtra(EXTRA_POST, Json.encodeToString(BeaconPost.serializer(), post))
-                    intent.putExtra(EXTRA_LOCATION, userLocation)
+                    userLocation?.let { location ->
+                        intent.putExtra("latitude", location.latitude)
+                        intent.putExtra("longitude", location.longitude)
+                    }
                     intent.putExtra(EXTRA_REPLY_LIST, response)
-                    intent.putExtra("distance",distance)
+                    intent.putExtra("distance", distance)
                     context.startActivity(intent)
                 } catch (e: Exception) {
                     Log.e("Error", "Parsing replies failed", e)

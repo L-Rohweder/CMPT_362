@@ -22,6 +22,10 @@ import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.EXTRA_LOCATION
 import com.example.beacon.view_models.UserViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 
 class TabbedActivity : AppCompatActivity(), LocationListener {
     private lateinit var binding: ActivityTabbedBinding

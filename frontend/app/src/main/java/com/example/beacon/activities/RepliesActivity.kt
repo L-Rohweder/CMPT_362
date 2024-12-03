@@ -25,6 +25,7 @@ import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
 import com.example.beacon.view_models.UserViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.google.gson.Gson
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -40,49 +41,62 @@ class RepliesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_replies)
 
-        val postData = intent.getStringExtra(EXTRA_POST)
-        if (postData == null) {
-            Toast.makeText(
-                this, "Failed to open post for replies.", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-        val replyListData = intent.getStringExtra(EXTRA_REPLY_LIST)
-        if (replyListData == null) {
-            Toast.makeText(
-                this, "Failed to open replies", Toast.LENGTH_SHORT
-            ).show()
+        // Get the post JSON string using the correct key
+        val postJson = intent.getStringExtra(EXTRA_POST)
+        if (postJson == null) {
+            Toast.makeText(this, "Failed to open post for replies.", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        val replies = Json.decodeFromString(
-            ListSerializer(BeaconReply.serializer()),
-            replyListData
-        )
+        try {
+            post = Json.decodeFromString(BeaconPost.serializer(), postJson)
+            
+            val replyListData = intent.getStringExtra(EXTRA_REPLY_LIST)
+            val replies = if (replyListData != null) {
+                Json.decodeFromString(
+                    ListSerializer(BeaconReply.serializer()),
+                    replyListData
+                )
+            } else {
+                arrayListOf()
+            }
 
-        post = Json.decodeFromString(BeaconPost.serializer(), postData)
-        contentEditText = findViewById(R.id.contentEditText)
-        val postButton = findViewById<Button>(R.id.postButton)
-        postButton.setOnClickListener {
-            postReplyToServer()
+            contentEditText = findViewById(R.id.contentEditText)
+            val postButton = findViewById<Button>(R.id.postButton)
+            postButton.setOnClickListener {
+                postReplyToServer()
+            }
+
+            val postsLinearLayout = findViewById<LinearLayout>(R.id.postLinearLayout)
+            val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+
+            // Get location from separate coordinates
+            val latitude = intent.getDoubleExtra("latitude", 0.0)
+            val longitude = intent.getDoubleExtra("longitude", 0.0)
+            val location = if (latitude != 0.0 && longitude != 0.0) {
+                LatLng(latitude, longitude)
+            } else {
+                null
+            }
+
+            val postsAdapter = PostsAdapter(this, listOf(post), null, location)
+            postsLinearLayout.addView(postsAdapter.getView(0, null, postsLinearLayout))
+
+            repliesLinearLayout = findViewById(R.id.repliesLinearLayout)
+            repliesAdapter = RepliesAdapter(this, replies)
+            for (i in 0..<repliesAdapter.count) {
+                repliesLinearLayout.addView(repliesAdapter.getView(i, null, repliesLinearLayout))
+            }
+
+            val prefs = getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
+            anonSwitch = findViewById(R.id.anonSwitch)
+            anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
+        } catch (e: Exception) {
+            Log.e("Error", "Failed to parse post data", e)
+            Toast.makeText(this, "Failed to open post for replies.", Toast.LENGTH_SHORT).show()
+            finish()
         }
-
-        val postsLinearLayout = findViewById<LinearLayout>(R.id.postLinearLayout)
-        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        val postsAdapter = PostsAdapter(this, listOf(post), null,
-            intent.getParcelableExtra(EXTRA_LOCATION, LatLng::class.java))
-        postsLinearLayout.addView(postsAdapter.getView(0, null, postsLinearLayout))
-
-        repliesLinearLayout = findViewById(R.id.repliesLinearLayout)
-        repliesAdapter = RepliesAdapter(this, replies)
-        for (i in 0..<repliesAdapter.count) {
-            repliesLinearLayout.addView(repliesAdapter.getView(i, null, repliesLinearLayout))
-        }
-
-        val prefs = getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
-        anonSwitch = findViewById(R.id.anonSwitch)
-        anonSwitch.isChecked = prefs.getBoolean(Constants.SP_IS_ANON, false)
     }
 
     private fun postReplyToServer() {

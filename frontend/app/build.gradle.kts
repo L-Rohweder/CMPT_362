@@ -84,5 +84,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.volley)
+    implementation (libs.gson)
 
 }
