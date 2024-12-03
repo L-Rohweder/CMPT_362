@@ -1,7 +1,6 @@
 package com.example.beacon.activities
 
 import android.content.Context
-import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,12 +8,10 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -31,7 +28,6 @@ import com.example.beacon.utils.Conversion
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
-import java.util.Date
 
 class RepliesActivity : AppCompatActivity() {
     private lateinit var post: BeaconPost
@@ -68,6 +64,7 @@ class RepliesActivity : AppCompatActivity() {
 
         scrollLinearLayout = findViewById<LinearLayout>(R.id.scrollLinearLayout)
         repliesAdapter = RepliesAdapter(this, replies)
+        scrollLinearLayout.removeAllViews()
         for (i in 0..<repliesAdapter.count) {
             scrollLinearLayout.addView(repliesAdapter.getView(i, null, scrollLinearLayout))
         }
@@ -94,7 +91,7 @@ class RepliesActivity : AppCompatActivity() {
         val datetimeTextView = findViewById<TextView>(R.id.datetime)
         datetimeTextView.text = Conversion.formatDateTime(post.datetime)
 
-        val postImageView = findViewById<ImageView>(R.id.postImage)
+        val postImageView = findViewById<ImageView>(R.id.replyImage)
         if(post.imageLink.isNotEmpty()){
             postImageView.visibility = View.VISIBLE
             Glide.with(this).load(post.imageLink).into(postImageView)
