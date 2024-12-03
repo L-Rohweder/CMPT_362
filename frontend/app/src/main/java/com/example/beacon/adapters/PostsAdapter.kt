@@ -98,6 +98,7 @@ class PostsAdapter(
         val likeButton = listWidgetView.findViewById<ImageButton>(R.id.like)
         var likes = 0
         var isLiked = false
+        var hasLiked = false
         val dislikeButton = listWidgetView.findViewById<ImageButton>(R.id.dislike)
         var isDisliked = false
         val likeText = listWidgetView.findViewById<TextView>(R.id.likeText)
@@ -111,9 +112,10 @@ class PostsAdapter(
                 if(userId in userIds) {
                     isLiked = true
                     likeButton.setImageResource(R.drawable.clickedthumbsup)
-                    likeText.text = "Likes: $likes"
+                    hasLiked=true
                 }
                 likes = userIds.size
+                likeText.text = "Likes: $likes"
             } else {
                 Log.e("Likes", "Failed to retrieve likes")
             }
@@ -127,9 +129,12 @@ class PostsAdapter(
                     isDisliked=false
                     dislikeButton.setImageResource(R.drawable.thumbsdown)
                 }
-                likes += 1
+                if(!hasLiked) {
+                    sendLikeToServer(post.id,userId)
+
+                }
                 isLiked=true
-                sendLikeToServer(post.id,userId)
+                likes += 1
                 likeButton.setImageResource(R.drawable.clickedthumbsup)
             }
             else{
@@ -138,7 +143,7 @@ class PostsAdapter(
                 likeButton.setImageResource(R.drawable.thumbsup)
             }
             likeText.text = "Likes: $likes"
-
+            hasLiked=true
         }
 
         dislikeButton.setOnClickListener {
@@ -146,6 +151,8 @@ class PostsAdapter(
                 if(isLiked){
                     isLiked = false
                     likeButton.setImageResource(R.drawable.thumbsup)
+                    likes -= 1
+                    likeText.text = "Likes: $likes"
                 }
                 isDisliked=true
                 dislikeButton.setImageResource(R.drawable.clickedthumbsdown)
