@@ -20,9 +20,11 @@ import com.example.beacon.models.BeaconPost
 import com.example.beacon.models.BeaconReply
 import com.example.beacon.utils.Constants
 import com.example.beacon.utils.Constants.BACKEND_IP
+import com.example.beacon.utils.Constants.EXTRA_LOCATION
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
 import com.example.beacon.view_models.UserViewModel
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -68,7 +70,8 @@ class RepliesActivity : AppCompatActivity() {
 
         val postsLinearLayout = findViewById<LinearLayout>(R.id.postLinearLayout)
         val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        val postsAdapter = PostsAdapter(this, listOf(post), null, userViewModel.location.value)
+        val postsAdapter = PostsAdapter(this, listOf(post), null,
+            intent.getParcelableExtra(EXTRA_LOCATION, LatLng::class.java))
         postsLinearLayout.addView(postsAdapter.getView(0, null, postsLinearLayout))
 
         repliesLinearLayout = findViewById(R.id.repliesLinearLayout)

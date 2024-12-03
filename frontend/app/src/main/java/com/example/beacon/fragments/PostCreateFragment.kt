@@ -188,7 +188,7 @@ class PostCreateFragment : Fragment() {
 
                     }
                 }
-                else{
+                else {
                     val post = BeaconPost(
                         name = username,
                         content = content,

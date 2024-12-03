@@ -27,6 +27,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import com.bumptech.glide.Glide
+import com.example.beacon.utils.Constants.EXTRA_LOCATION
 import com.example.beacon.utils.Conversion
 import com.google.android.gms.maps.model.LatLng
 
@@ -248,6 +249,7 @@ class PostsAdapter(
 
                     val intent = Intent(context, RepliesActivity::class.java)
                     intent.putExtra(EXTRA_POST, Json.encodeToString(BeaconPost.serializer(), post))
+                    intent.putExtra(EXTRA_LOCATION, userLocation)
                     intent.putExtra(EXTRA_REPLY_LIST, response)
                     intent.putExtra("distance",distance)
                     context.startActivity(intent)

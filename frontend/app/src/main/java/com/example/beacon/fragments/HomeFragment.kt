@@ -20,7 +20,9 @@ import com.example.beacon.adapters.PostsAdapter
 import com.example.beacon.databinding.FragmentHomeBinding
 import com.example.beacon.models.BeaconPost
 import com.example.beacon.utils.Constants.BACKEND_IP
+import com.example.beacon.utils.Constants.EXTRA_LOCATION
 import com.example.beacon.view_models.UserViewModel
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -48,7 +50,7 @@ class HomeFragment : Fragment() {
         requestQueue = Volley.newRequestQueue(requireActivity())
         val postListView = root.findViewById<ListView>(R.id.postsListView)
         userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, null)
+        postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, requireActivity().intent.getParcelableExtra(EXTRA_LOCATION, LatLng::class.java))
         postListView.adapter = postsAdapter
         userViewModel.location.observe(viewLifecycleOwner) { currentLocation->
             if( currentLocation!=null){
@@ -62,8 +64,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-
-
         // Initialize UserViewModel
         userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         
@@ -75,6 +75,11 @@ class HomeFragment : Fragment() {
         }
 
         return root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getPostsFromServer()
     }
 
     private fun getPostsFromServer() {

@@ -25,7 +25,6 @@ class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private lateinit var profileButton: TextView
-    private lateinit var unitsRadioGroup: RadioGroup
     private lateinit var anonSwitch: SwitchCompat
     private lateinit var logoutButton: Button
     private lateinit var prefs: SharedPreferences
@@ -37,16 +36,7 @@ class SettingsFragment : Fragment() {
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
-
-        unitsRadioGroup = root.findViewById(R.id.unitsRadioGroup)
         prefs = requireActivity().getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
-        
-        // Setup units radio group
-        unitsRadioGroup.setOnCheckedChangeListener { radioGroup, id ->
-            val checkedButton = root.findViewById<TextView>(id)
-            prefs.edit().putString(Constants.SP_UNITS, checkedButton.text.toString()).apply()
-        }
 
         // Setup default as anonymous check
         anonSwitch = root.findViewById(R.id.anonSwitch)
