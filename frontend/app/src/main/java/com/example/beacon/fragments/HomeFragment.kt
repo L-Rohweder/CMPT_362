@@ -34,13 +34,7 @@ class HomeFragment : Fragment() {
     private lateinit var requestQueue: RequestQueue
     private val handler = Handler(Looper.getMainLooper())
     private val updateInterval = 60000L // 1 minute in milliseconds
-    
-    private val updateRunnable = object : Runnable {
-        override fun run() {
-            getPostsFromServer()
-            handler.postDelayed(this, updateInterval)
-        }
-    }
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,18 +64,17 @@ class HomeFragment : Fragment() {
 
 
 
-        // Start periodic updates
-        startPeriodicUpdates()
+        // Initialize UserViewModel
+        userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
+        
+        // Observe location changes
+        userViewModel.location.observe(viewLifecycleOwner) { location ->
+            if (location != null) {
+                getPostsFromServer()
+            }
+        }
 
         return root
-    }
-
-    private fun startPeriodicUpdates() {
-        handler.post(updateRunnable)
-    }
-
-    private fun stopPeriodicUpdates() {
-        handler.removeCallbacks(updateRunnable)
     }
 
     private fun getPostsFromServer() {
@@ -89,16 +82,12 @@ class HomeFragment : Fragment() {
             return
         }
 
-        val url = "$BACKEND_IP/get"
-
-        // Get user's current location
-        val userViewModel = ViewModelProvider(requireActivity())[UserViewModel::class.java]
         val currentLocation = userViewModel.location.value
         val range = userViewModel.range.value
 
 
         if (currentLocation == null) {
-            Toast.makeText(context, "Location not available", Toast.LENGTH_SHORT).show()
+            Log.d("HomeFragment", "Location not available yet")
             return
         }
 
@@ -111,7 +100,7 @@ class HomeFragment : Fragment() {
         params.put("range", range)
 
         val request = object : StringRequest(
-            Method.POST, url,
+            Method.POST, "$BACKEND_IP/get",
             { response ->
                 try {
                     Log.d("ServerResponse", "Response: $response")
@@ -156,7 +145,6 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        stopPeriodicUpdates()
         requestQueue.cancelAll(this)
         _binding = null
     }

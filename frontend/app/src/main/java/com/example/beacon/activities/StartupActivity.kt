@@ -14,8 +14,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.beacon.R
 import com.example.beacon.utils.Constants.EXTRA_LOCATION
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.FusedLocationProviderClient
+import android.os.Looper
 
 class StartupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,10 +45,44 @@ class StartupActivity : AppCompatActivity() {
                     val intent = Intent(this, TabbedActivity::class.java)
                     intent.putExtra(EXTRA_LOCATION, LatLng(location.latitude, location.longitude))
                     startActivity(intent)
+                    finish()
+                } else {
+                    requestNewLocation(fusedLocationClient)
+                }
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to get location: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } catch (_: SecurityException) {
+            Toast.makeText(this, "Please enable location permissions.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun requestNewLocation(fusedLocationClient: FusedLocationProviderClient) {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+            .setWaitForAccurateLocation(true)
+            .setMinUpdateIntervalMillis(2000)
+            .build()
+
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                val lastLocation = locationResult.lastLocation
+                if (lastLocation != null) {
+                    fusedLocationClient.removeLocationUpdates(this)
+                    val intent = Intent(this@StartupActivity, TabbedActivity::class.java)
+                    intent.putExtra(EXTRA_LOCATION, LatLng(lastLocation.latitude, lastLocation.longitude))
+                    startActivity(intent)
+                    finish()
                 }
             }
         }
-        catch (_: SecurityException) {
+
+        try {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        } catch (_: SecurityException) {
             Toast.makeText(this, "Please enable location permissions.", Toast.LENGTH_SHORT).show()
         }
     }

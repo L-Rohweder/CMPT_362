@@ -4,6 +4,8 @@ import configparser
 import json
 import os
 import utils.Response as Response
+from datetime import datetime
+
 def sendPosts(jsonFile, connection, dbConnection):
     print("send posts in range of:", jsonFile)
     config = configparser.ConfigParser()
@@ -28,8 +30,12 @@ def sendPostList(connection, postlist):
 def postListListToPostObjectList(postlist):
     postObjList = []
     for post in postlist:
-        print(postlist)
         try:
+            # Format datetime or provide default
+            post_datetime = post[8]
+            if post_datetime is None:
+                post_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
             postObj = {
                 "id": post[0],
                 "userID": post[1],
@@ -37,17 +43,18 @@ def postListListToPostObjectList(postlist):
                 "content": post[3],
                 "latitude": post[4],
                 "longitude": post[5],
-                "imageLink": post[6],
+                "imageLink": post[6] or "",
                 "username": post[7],
-                "likes": post[8],
-                "datetime": post[9],
-                "isAnon": bool(post[10])
+                "datetime": post_datetime,
+                "isAnon": bool(post[9])
             }
             postObjList.append(postObj)
         except IndexError as e:
             print("IndexError parsing postlist in sendPosts:", e)
+            print("Post data:", post)
         except Exception as e:
             print("Error parsing postlist in sendPosts:", e)
+            print("Post data:", post)
     return postObjList
 
 def getLatRange(latitude, km):

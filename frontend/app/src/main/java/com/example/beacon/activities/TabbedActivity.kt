@@ -26,15 +26,29 @@ import com.google.android.gms.maps.model.LatLng
 class TabbedActivity : AppCompatActivity(), LocationListener {
     private lateinit var binding: ActivityTabbedBinding
     private lateinit var locationManager: LocationManager
+    private lateinit var userViewModel: UserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        
+        // Get location from intent using type-safe getParcelable with null check
+        val location = try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(EXTRA_LOCATION, LatLng::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra<LatLng>(EXTRA_LOCATION)
+            }
+        } catch (e: Exception) {
+            null
+        }
 
-        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
-        val location = intent.getParcelableExtra(EXTRA_LOCATION, LatLng::class.java)
         if (location != null) {
-
             userViewModel.location.value = location
+        } else {
+            Toast.makeText(this, "Waiting for location...", Toast.LENGTH_SHORT).show()
         }
 
         val sharedPrefs = getSharedPreferences(Constants.SP_KEY, Context.MODE_PRIVATE)
@@ -65,15 +79,30 @@ class TabbedActivity : AppCompatActivity(), LocationListener {
     private fun initLocationManager() {
         try {
             locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 100f, this)
-
-        }
-        catch (_: SecurityException) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    5000, // Update every 5 seconds
+                    10f,  // Or when moved 10 meters
+                    this
+                )
+                
+                // Get last known location as backup
+                val lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                if (lastLocation != null && userViewModel.location.value == null) {
+                    userViewModel.location.value = LatLng(lastLocation.latitude, lastLocation.longitude)
+                }
+            }
+        } catch (e: SecurityException) {
+            Toast.makeText(this, "Location permission required", Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onLocationChanged(location: Location) {
-        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         userViewModel.location.value = LatLng(location.latitude, location.longitude)
     }
 }
