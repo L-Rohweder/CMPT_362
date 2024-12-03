@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
         progressBar = root.findViewById(R.id.progressBar)
         requestQueue = Volley.newRequestQueue(requireActivity())
         val postListView = root.findViewById<ListView>(R.id.postsListView)
-        val userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        userViewModel = ViewModelProvider(this)[UserViewModel::class.java]
         postsAdapter = PostsAdapter(requireActivity(), mutableListOf(), progressBar, null)
         postListView.adapter = postsAdapter
         userViewModel.location.observe(viewLifecycleOwner) { currentLocation->

@@ -8,15 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
-import androidx.lifecycle.ViewModelProvider
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.example.beacon.R
@@ -26,18 +23,13 @@ import com.example.beacon.models.BeaconReply
 import com.example.beacon.utils.Constants.BACKEND_IP
 import com.example.beacon.utils.Constants.EXTRA_POST
 import com.example.beacon.utils.Constants.EXTRA_REPLY_LIST
-import com.example.beacon.view_models.UserViewModel
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
 import com.bumptech.glide.Glide
 import com.example.beacon.utils.Conversion
 import com.google.android.gms.maps.model.LatLng
 import org.json.JSONArray
-import java.util.Date
 
 class PostsAdapter(
     context: Context,
