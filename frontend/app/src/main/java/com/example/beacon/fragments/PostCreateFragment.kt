@@ -284,6 +284,7 @@ class PostCreateFragment : Fragment() {
     }
 
     private fun clearViews() {
+        containsImage = false
         progressBar.visibility = View.INVISIBLE
         binding.contentEditText.text.clear()
         image.visibility = View.GONE
